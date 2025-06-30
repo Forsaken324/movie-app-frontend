@@ -64,7 +64,7 @@ export const dummyShowsData = [
         "genres": [
             { "id": 28, "name": "Action" },
             { "id": 14, "name": "Fantasy" },
-            { "id": 12, "name": "Adventure" }
+            { "id": 12, "name": "Adventure" },
         ],
         "casts": dummyCastsData,
         "release_date": "2025-02-27",

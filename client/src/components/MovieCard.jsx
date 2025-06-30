@@ -30,7 +30,7 @@ const MovieCard = ({movie}) => {
             <span className="text-md text-gray-300">2018 - Action, Adventure - 2h 8m</span>
         </div> */}
         <div className="flex items-center justify-between mt-4 pb-3">
-            <button onClick={() => {navigate(`movies/${movie_id}`); scrollTo(0,0)}} className="px-5 py-2.5 text-xs bg-primary hover:bg-primary-dull transition duration-300 ease-in font-medium  rounded-lg cursor-pointer">Buy Ticket</button>
+            <button onClick={() => {navigate(`/movies/${movie._id}`); scrollTo(0,0)}} className="px-5 py-2.5 text-xs bg-primary hover:bg-primary-dull transition duration-300 ease-in font-medium  rounded-lg cursor-pointer">Buy Ticket</button>
             <span className="flex items-center gap-1 text-sm text-gray-400 mt-1 pr-1"><StarIcon className="w-4 h-4 text-primary fill-primary"/> {movie.vote_average.toFixed(1)}</span>
         </div>
     </div>
