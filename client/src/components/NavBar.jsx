@@ -47,7 +47,6 @@ const NavBar = () => {
                     )
                 }
 
-
             </div>
 
             <MenuIcon className={`max-md:ml-4 md:hidden w-8 h-8 cursor-pointer ${menuOpen ? 'hidden' : ''}`} onClick={() => setMenuOpen(true)} />

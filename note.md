@@ -31,3 +31,22 @@ const isAdminRoute = useLocation.pathname.startsWith('/admin');
 ```
 
 - We will be using clerk for our authentication.
+
+
+# Tailwinds Mobile First Approach
+
+- Tailwind css employs a mobile first approach, this means that the styles you apply will apply to small screens upwards. Tailwind provides breakpoints, those breakpoints when applied, changes the takes effect from that screen size upwards, instead of downwards like using normal media queries with max-width in vanila css.
+
+e.g
+
+``` html
+
+<div className='text-red-400 md:text-green-900'>This is a text</div>
+
+```
+
+- Red styling will be applied from smaller screens up, then when it gets to the medium screen, from that width up, the text will be green.
+
+# Prebuilt ui
+
+- You can use prebuilt ui for free reusable components so you dont have to build them from scratch on your own.
