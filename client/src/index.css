@@ -5,7 +5,10 @@
 @theme {
   --color-primary: #f84565;
   --color-primary-dull: #d63854;
-  --color-primary-bg: #1#12161C;
+  --color-primary-bg: #12161c;
+  --color-blueish-gray: #1e2939;
+  --color-light-blueish-gray: #364153;
+
 }
 
 
