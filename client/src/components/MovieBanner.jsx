@@ -11,9 +11,9 @@ const MovieBanner = ({ movie }) => {
     })}`
     return (
         <div className='mt-[180px] md:ml-7'>
-            <BlurCircle className="left-[200px] top-30 md:left-[650px] md:top-[50px]" />
+            <BlurCircle className={'left-[100px] top-[95px] md:left-[150px] md:top-[120px] xl:left-[750px] xl:top-[150px]'}/>
             <div className='flex flex-col md:flex-row justify-center w-full p-5'>
-                <div className='w-[90%] md:w-[278px] h-[417px] ml-[25px] md:ml-0 bg-teal-900 rounded-xl'>
+                <div className='w-[90%] md:w-[278px] h-[417px] ml-[20px] sm:ml-[25px] md:ml-0 bg-teal-900 rounded-xl'>
                     <img src={movie.backdrop_path} alt="ss" className='rounded-lg h-full w-full object-cover cursor-pointer' />
                 </div>
                 <div className='pl-0 md:pl-10 w-auto md:w-[600px] '>
@@ -30,7 +30,7 @@ const MovieBanner = ({ movie }) => {
                     </div>
                     <div className='flex gap-5 mt-8'>
                         <button className='flex items-center justify-center gap-2 bg-blueish-gray h-[44px] w-[161px] hover:bg-light-blueish-gray transition duration-300 rounded-lg'><PlayCircleIcon strokeWidth={1.6} />Watch Trailer</button>
-                        <button className='bg-primary h-[44px] w-[135px] rounded-lg hover:bg-primary-dull transition duration-300'>Buy Tickets</button>
+                        <a href="#select-date " className='bg-primary px-10 py-3 text-sm rounded-lg hover:bg-primary-dull transition duration-300'>Buy Tickets</a>
                         <button className='flex justify-center items-center h-[41px] w-[41px] bg-light-blueish-gray rounded-full hover:bg-blueish-gray transition duration-300'><HeartIcon /></button>
                     </div>
                 </div>

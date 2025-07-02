@@ -8,7 +8,7 @@ const MovieCast = ({ casts }) => {
 
     return (
         <div className='flex flex-col items-center pt-20 pb-20 pl-7 md:pl-12'>
-            {showCastModal ? <MovieCastModal casts={casts} /> : (
+            {showCastModal ? <MovieCastModal casts={casts} setShowCastModal={setShowCastModal}  /> : (
                 <div>
                     <h2 className='pb-[50px] pt-[40px]'>Your Favourite Cast</h2>
                     <div className='flex flex-wrap gap-7'>
