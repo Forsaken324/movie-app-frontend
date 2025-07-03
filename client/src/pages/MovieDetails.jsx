@@ -5,6 +5,7 @@ import MovieBanner from '../components/MovieBanner';
 import MovieCast from '../components/MovieCast';
 import DateSelect from '../components/DateSelect';
 import Recommendations from '../components/Recommendations';
+import LoadingAnimation from '../components/animations/LoadingAnimation';
 
 const MovieDetails = () => {
 
@@ -12,10 +13,13 @@ const MovieDetails = () => {
   // const params = useParams();
   // const [movie, setMovie] = useState(null);
   const [show, setShow] = useState(null);
-  
+
   const getShow = async () => {
     const show = dummyShowsData.find((show) => show._id === id);
-    setShow({movie: show, dateTime: dummyDateTimeData})
+    if (show) {
+      setShow({ movie: show, dateTime: dummyDateTimeData })
+    }
+
   }
 
   useEffect(() => {
@@ -38,11 +42,11 @@ const MovieDetails = () => {
           <DateSelect dateTime={show.dateTime} id={id} />
           <Recommendations shows={dummyShowsData} id={id} />
         </>
-      ) : ( 
-        <div className='flex flex-col items-center justify-center h-screen'>
-          <h1 className='text-3xl font-bold text-center'>Loading...</h1>
+      ) : (
+        <div className='flex flex-col items-center justify-center mt-70'>
+          <LoadingAnimation />
         </div>
-       )}
+      )}
     </div>
   )
 }
