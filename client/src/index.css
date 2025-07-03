@@ -23,4 +23,9 @@
     color: white;
     background-color: #09090b;
   }
+
+  .no-scrollbar
+  {
+    scrollbar-width: none;
+  }
 }

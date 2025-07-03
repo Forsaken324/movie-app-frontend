@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom'
 import { dummyShowsData, dummyDateTimeData } from '../assets/assets';
 import MovieBanner from '../components/MovieBanner';
 import MovieCast from '../components/MovieCast';
+import DateSelect from '../components/DateSelect';
+import Recommendations from '../components/Recommendations';
 
 const MovieDetails = () => {
 
   const { id } = useParams();
-  const params = useParams();
-  const [movie, setMovie] = useState(null);
+  // const params = useParams();
+  // const [movie, setMovie] = useState(null);
   const [show, setShow] = useState(null);
   
   const getShow = async () => {
@@ -16,23 +18,25 @@ const MovieDetails = () => {
     setShow({movie: show, dateTime: dummyDateTimeData})
   }
 
-  // useEffect(() => {
-  //   getShow()
-  // }, [id])
-
   useEffect(() => {
-
-    const movieFiltered = dummyShowsData.filter((movie) => movie._id === id);
-    setMovie(movieFiltered[0]);
-
+    getShow()
   }, [id])
+
+  // useEffect(() => {
+
+  //   const movieFiltered = dummyShowsData.filter((movie) => movie._id === id);
+  //   setMovie(movieFiltered[0]);
+
+  // }, [id])
 
   return (
     <div>
-      {movie ? (
+      {show ? (
         <>
-          <MovieBanner movie={movie} />
-          <MovieCast casts={movie.casts} />
+          <MovieBanner movie={show.movie} />
+          <MovieCast casts={show.movie.casts} />
+          <DateSelect dateTime={show.dateTime} id={id} />
+          <Recommendations shows={dummyShowsData} id={id} />
         </>
       ) : ( 
         <div className='flex flex-col items-center justify-center h-screen'>

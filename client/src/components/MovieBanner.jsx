@@ -30,7 +30,7 @@ const MovieBanner = ({ movie }) => {
                     </div>
                     <div className='flex gap-5 mt-8'>
                         <button className='flex items-center justify-center gap-2 bg-blueish-gray h-[44px] w-[161px] hover:bg-light-blueish-gray transition duration-300 rounded-lg'><PlayCircleIcon strokeWidth={1.6} />Watch Trailer</button>
-                        <a href="#select-date " className='bg-primary px-10 py-3 text-sm rounded-lg hover:bg-primary-dull transition duration-300'>Buy Tickets</a>
+                        <a href="#select-date"><div className='bg-primary flex items-center justify-center w-[135px] h-[44px] text-sm rounded-lg hover:bg-primary-dull transition duration-300'>Buy Tickets</div></a>
                         <button className='flex justify-center items-center h-[41px] w-[41px] bg-light-blueish-gray rounded-full hover:bg-blueish-gray transition duration-300'><HeartIcon /></button>
                     </div>
                 </div>

@@ -5,6 +5,7 @@ const MovieCast = ({ casts }) => {
     const initialCasts = casts.slice(0, 7);
     const [showCastModal, setShowCastModal] = useState(false);
 
+    
 
     return (
         <div className='flex flex-col items-center pt-20 pb-20 pl-7 md:pl-12'>
