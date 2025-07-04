@@ -1,7 +1,7 @@
 import { XIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
-const MovieCastModal = ({ casts }) => {
+const MovieCastModal = ({ casts, setShowCastModal }) => {
     const itemsPerPage = 6;
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -18,9 +18,11 @@ const MovieCastModal = ({ casts }) => {
     };
 
     return (
-        <div className='fixed inset-0 flex flex-col items-center justify-center z-50 p-6 text-white' style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}>
-            <button className='bg-primary flex items-center justify-center rounded-full hover:bg-primary-dull hover:h-[35px] hover:w-[35px] duration-300 h-[30px] w-[30px] ml-80 mb-10 mt-5' onClick={() => set}><XIcon /></button>
-            <div className='grid grid-cols-2 gap-4 md:grid-cols-3'>
+        <div className='fixed inset-0 flex flex-col items-center justify-center z-50 p-6 text-white' style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }} onClick={() => setShowCastModal(false)}>
+            <div onClick={(e) => e.stopPropagation()}>
+                <button className='bg-primary flex items-center justify-center rounded-full hover:bg-primary-dull hover:h-[35px] hover:w-[35px] duration-300 h-[30px] w-[30px] ml-80 mb-10 mt-5' onClick={() => setShowCastModal(false)}><XIcon /></button>
+            </div>
+            <div className='grid grid-cols-2 gap-4 md:grid-cols-3' onClick={(e) => e.stopPropagation()}>
                 {currentBatch.map((cast) => (
                     <div key={cast.name} className='flex flex-col items-center'>
                         <div className='h-[101.94px] w-[101.94px] rounded-full overflow-hidden'>
@@ -38,7 +40,7 @@ const MovieCastModal = ({ casts }) => {
             </div>
 
             {/* Pagination Controls */}
-            <div className='mt-6 flex items-center gap-4'>
+            <div className='mt-6 flex items-center gap-4' onClick={(e) => e.stopPropagation()}>
                 <button
                     onClick={goToPrevPage}
                     disabled={currentPage === 1}
