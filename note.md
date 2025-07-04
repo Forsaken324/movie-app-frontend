@@ -50,3 +50,18 @@ e.g
 # Prebuilt ui
 
 - You can use prebuilt ui for free reusable components so you dont have to build them from scratch on your own.
+
+
+
+# JavaScript Methods
+
+- In order to create a new array from an iterable, you can use the array.from method.
+
+
+``` javascript
+
+const doubledArray = Array.from([1,2,3], (x) => x + x));
+
+```
+
+- The rhs of the expression above creates an array from another iterable, this time an instance of array itself, and then for each value in that array, carry out the anonymous function on it, and then return the value. The new set values will be appended to an array and returned.

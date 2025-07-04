@@ -1,70 +1,30 @@
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
+import MovieCastModal from './modals/MovieCastModal';
 
 const MovieCast = ({ casts }) => {
+    const initialCasts = casts.slice(0, 7);
+    const [showCastModal, setShowCastModal] = useState(false);
 
-    const [castBatch, setCastBatch] = useState([]);
-    const length = casts.length - 1;
+    
 
-    let start = 0;
-    let end = 7;
-
-    const nextBatch = () => {
-        start = end > 0 ? end : start;
-        end = start * 7;
-
-        if (end === length || end > length)
-        {
-            end = 0;
-            return
-        }
-    }
-    const previousBatch = () => {
-        end = end - start;
-        start = start / 2;
-    }
-
-    const changeCasts = (instruction) => {
-        if (instruction == 'next')
-        {
-            start = end;
-            end = start * 2;
-
-            if (end === length)
-            {
-                end = 0;
-                return;
-            }
-
-        }
-        else
-        {
-
-        }
-    }
-
-    useEffect(() => {
-        const data = casts.slice(20, 40);
-        console.log(data);
-        setCastBatch(data);
-
-
-    }, [start, end])
     return (
-        <div className=''>
-            <h2 >Your Favourite Cast</h2>
-            <div className='flex gap-15 w-[850px]  '>
-                <button onClick={previousBatch} className='bg-green-900'>previous</button>
-                {castBatch.map((cast) => (
-                    <div key={cast.name}>
-                        <div className='h-[101.94px] w-[101.94px] rounded-full overflow-hidden'>
-                            <img src={cast.profile_path} alt={cast.name} className='w-full h-full object-cover cursor-pointer' />
-                        </div>
-                        <p>{cast.name}</p>
-                        <p>Peter Quil</p>
+        <div className='flex flex-col items-center pt-20 pb-20 pl-7 md:pl-12'>
+            {showCastModal ? <MovieCastModal casts={casts} setShowCastModal={setShowCastModal}  /> : (
+                <div>
+                    <h2 className='pb-[50px] pt-[40px]'>Your Favourite Cast</h2>
+                    <div className='flex flex-wrap gap-7'>
+                        {initialCasts.map((cast) => (
+                            <div key={cast.name} className='flex flex-col items-center'>
+                                <div className='h-[101.94px] w-[101.94px] rounded-full overflow-hidden'>
+                                    <img src={cast.profile_path} alt={cast.name} className='w-full h-full object-cover cursor-pointer' />
+                                </div>
+                                <p>{cast.name}</p>
+                                <p className='text-sm text-gray-400'>Peter Quil</p>
+                            </div>
+                        ))}
                     </div>
-                ))}
-                <button onClick={nextBatch} className='bg-green-700'>next</button>
-            </div>
+                    <div className='text-center p-10 text-gray-400 cursor-pointer' onClick={() => setShowCastModal(true)}>view all</div>
+                </div>)}
         </div>
     )
 }
