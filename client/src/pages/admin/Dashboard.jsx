@@ -36,7 +36,7 @@ const DashBoard = () => {
     }, []);
 
     return !loading ? (
-        <div className="">
+        <div>
             <BlurCircle className="top-0 right-0 md:left-90" />
             <Title title={'Admin Dashboard'} />
             <div className="mt-10 flex flex-col items-center md:flex-row gap-2">

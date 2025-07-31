@@ -331,3 +331,30 @@ export const dummyBookingData = [
         "isPaid": true,
     },
 ]
+
+export const dummyListShowsData = [
+    {
+        "movie": dummyShowsData[0],
+        "showTime": "2025-06-30T02:30:00.000Z",
+        "totalBookings": 300,
+        "earnings": 50
+    },
+    {
+        "movie": dummyShowsData[1],
+        "showTime": "2025-07-15T16:30:00.000Z",
+        "totalBookings": 300,
+        "earnings": 50
+    },
+    {
+        "movie": dummyShowsData[2],
+        "showTime": "2025-06-30T02:30:00.000Z",
+        "totalBookings": 300,
+        "earnings": 50
+    },
+    {
+        "movie": dummyShowsData[3],
+        "showTime": "2025-06-05T15:30:00.000Z",
+        "totalBookings": 300,
+        "earnings": 50
+    },
+]
