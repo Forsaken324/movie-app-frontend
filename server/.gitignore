@@ -1,0 +1,32 @@
+# Python bytecode and build artifacts
+__pycache__/
+*.pyc
+*.pyd
+*.egg
+*.egg-info/
+build/
+dist/
+develop-eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE and editor specific files
+.idea/
+.vscode/
+*.swp
+*~
+
+# Operating system specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Sensitive information (adjust as needed)
+# config.ini
+# settings_local.py
