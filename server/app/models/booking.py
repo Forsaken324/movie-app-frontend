@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from sqlmodel import SQLModel, Field
 
-class Booking(BaseModel):
+class Booking(SQLModel, table=True):
     ...

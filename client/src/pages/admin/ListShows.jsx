@@ -23,26 +23,30 @@ const ListShows = () => {
             <BlurCircle className={'md:left-100'} />
             <h1 className="text-[22px]">List <span className="text-primary underline">Shows</span></h1>
             {shows ? (
-                <table className="mt-10 w-[723px] h-[197px] border border-separate border-spacing-0 rounded-md border-primary/50 ">
-                    <thead>
-                        <tr className="bg-primary/30 h-[70px] rounded-tl">
-                            <th className="pl-5 w-[250px] text-start">Movie Name</th>
-                            <th className="w-[250px] text-start">Show Time</th>
-                            <th className="w-[250px] text-start">Total Booking</th>
-                            <th className="w-[150px] text-start">Earning</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {shows.map((show, index) => (
-                            <tr key={index} className="bg-primary/10">
-                                <td className="pl-5 h-[60px] border border-x-0 border-primary/40">{show.movie.title}</td>
-                                <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40" >{dashedDate(show.showTime)} {isoTimeFormat(show.showTime)}</td>
-                                <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40">{show.totalBookings}</td>
-                                <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40">{currency}{show.earnings}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[723px] h-[197px] border border-separate border-spacing-0 rounded-md border-primary/50 mt-10">
+                            <thead>
+                                <tr className="bg-primary/30 h-[70px] rounded-tl">
+                                    <th className="pl-5 w-[250px] text-start">Movie Name</th>
+                                    <th className="w-[250px] text-start">Show Time</th>
+                                    <th className="w-[250px] text-start">Total Booking</th>
+                                    <th className="w-[150px] text-start">Earning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {shows.map((show, index) => (
+                                    <tr key={index} className="bg-primary/10">
+                                        <td className="pl-5 h-[60px] border border-x-0 border-primary/40">{show.movie.title}</td>
+                                        <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40" >{dashedDate(show.showTime)} {isoTimeFormat(show.showTime)}</td>
+                                        <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40">{show.totalBookings}</td>
+                                        <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40">{currency}{show.earnings}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>                        
+                    </div>
+                </div>
             ) : (
                 <LoadingAnimation />
             )}

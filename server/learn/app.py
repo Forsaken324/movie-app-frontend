@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Session
+from sqlmodel import SQLModel, Session, select
 
 from model import *
 from db.db import engine
@@ -23,9 +23,19 @@ def create_heroes():
     # session.commit()
     # session.close()
 
+def select_heroes():
+    with Session(engine) as session:
+        statement = select(Hero) # select all columns necessary for the hero class.
+        results = session.exec(statement)
+        heroes = results.all()
+        print(heroes)
+        # results = session.exec(select(Hero)).all()
+
+
 def main():
     create_db_and_tables()
     create_heroes()
+    select_heroes()
 
 if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 router = APIRouter(
     prefix='/shows',
-    tag=['shows'],
+    tags=['shows'],
     responses={404: {"description": "Not found"}},
 )
 

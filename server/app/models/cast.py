@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from sqlmodel import SQLModel, Field
 
-class Cast(BaseModel):
-    name: str
-    profile_path: str
+class Cast(SQLModel):
+    name: str = Field(min_items=2, max_length=256)
+    profile_path: str = Field(min_items=2, max_length=256)
     
