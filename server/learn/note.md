@@ -121,3 +121,23 @@ on hero.team_id = team.id
 ## Relationships in SQLModel
 
 Relationship attributes dont represent a column directly in the database, and their value is not a singular value like an integer. Their value is the entire object that is related.
+
+when working with relationships, we dont need to commit both tables to the database when using session, commiting one will be enough, as sql alchemy knows that in order for it to properly define one database, it needs to define the other, so the other will be automatically created for you.
+
+we can also remove relationships by setting it to None.
+
+
+
+## Relationship back_populates
+
+back_populate tells SQLModel that if something changes in this model, it should change that attribute in the other model, and it will work even before committing with the session ( that would force a refresh of the data ). That is lets say Hero, and Team table, if you add a backpopulate between hero and team, any changes made to team will reflect in hero, and any changes made in hero, will reflect in team, to make sure the data is up to date.
+
+The string in back_populates is the name of the attribute in the other model, that will reference the current model.
+
+The string in back_populates is always about the current model class you are editing. 
+
+
+## Cascade Delete Relationships
+
+What happens if we delete a team that has a relationship with heroes? Should those heroes be automatically deleted too? That's called a "cascade", because the initial deletion causes a cascade of other deletions. Should their team_id instead be set to NULL in the database?
+

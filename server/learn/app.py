@@ -72,6 +72,11 @@ def select_heroes():
         results = session.exec(select(Hero)).all()
         print(results)
 
+def select_hero_w_relationship():
+    with Session(engine) as session:
+        hero_dead_pond = session.exec(select(Hero).where(Hero.name == 'Deadpond')).one()
+        print(hero_dead_pond.team) # this works when inside a session.
+
 def select_related_heroes():
     with Session(engine) as session:
         statement = select(Hero, Team).where(Hero.team_id == Team.id)
