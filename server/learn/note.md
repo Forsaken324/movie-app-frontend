@@ -58,3 +58,66 @@ on hero (name)
 ```
 
 In order to give an index for a model in sqlmodel, use the field function and set index to true on that column. The database automatically creates indexes for primary keys
+
+# Update data in sql
+
+To update data in sql, make use of the update clause.
+
+``` sql
+
+update hero
+set teamId = 1
+where name = 'peter';
+
+```
+
+# Read Connected Data
+
+A simple way of reading connected data in sql.
+
+``` sql
+
+select hero.id, hero.name, team.id
+from hero, team
+where hero.team_id = team.id
+
+```
+you can also read connected data by making use of join
+
+``` sql
+
+select hero.id, hero.name, team.name
+from hero
+join team
+on hero.team_id = team_id
+
+```
+
+# Joining Tables with SQL and LEFT OUTER 
+
+Imagine you are working with join on an sql database, how it works underneath is that, imagine you have two tables, the table you use for the from part, will be placed on the left hand side, and the table you use on the join part will be placed on the right hand side, then you tell the database on which condition it should join those two tables and give the results back. By default, only the rows from both left and right that match the condition will be returned.
+
+But what if we want a table where even if the hero does not have a team, the hero will still be returned in the resulting table, just like saying keep everything in the left side of the table even if it does not match the condition. we can use the LEFT OUTER clause paired with the JOIN clause for this.
+
+``` sql
+
+select hero.id, hero.name, team.name
+from hero
+join team
+left outer join team
+on hero.team_id = team.id
+
+```
+
+# Update Data Connections
+
+- You can add data connections using dot notations just like editing the properties of a python object.
+
+# Deleting Data Connections
+
+- In order to break a connection, all you have to do is assign None to the foreign key using regular dot notation.
+
+
+## Relationships in SQLModel
+
+Relationship attributes dont represent a column directly in the database, and their value is not a singular value like an integer. Their value is the entire object that is related.
