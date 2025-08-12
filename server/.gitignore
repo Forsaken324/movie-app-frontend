@@ -28,5 +28,6 @@ Thumbs.db
 *.tmp
 
 # Sensitive information (adjust as needed)
+.env
 # config.ini
 # settings_local.py

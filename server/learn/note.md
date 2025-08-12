@@ -137,7 +137,29 @@ The string in back_populates is the name of the attribute in the other model, th
 The string in back_populates is always about the current model class you are editing. 
 
 
+## Many-To-Many Relationships
+
+The link table used to define many to many relationships can also be called an association table, secondary table, junction table, intermediate table, join table, through table, relationship table, connection table, etc. In this case, the columns of the link table will be the primary key of that row.
+
+To achieve this, create a link table, it is just like any other table, but the columns of this link table will have its primary key set to true, regardless of the number of columns, then when defining a relationship for the two main tables, inside the Relationship instance, after adding your back_populate, add a second parameter named link_model, and set it to the name of the table you created to link them together, the rows of this table usually contains the primary key of the two tables.
+
+When updating or deleting from many to many relationships, we should remember that many to many relationships are often represented as lists, so in order for us to update a value, say we want to add, we can simply query the database for that table, which would return an object, then we can access the list that defines the relationship in that object, since we made use of the relationship constructor, and then we can simply append to that list, add the changes, and then commit the change. 
+
 ## Cascade Delete Relationships
 
 What happens if we delete a team that has a relationship with heroes? Should those heroes be automatically deleted too? That's called a "cascade", because the initial deletion causes a cascade of other deletions. Should their team_id instead be set to NULL in the database?
 
+
+
+## CORS
+
+An origin is a combination of protocol, domain and port
+
+
+dont end up as a film extra in someone else's life.
+
+Get the things that should'nt be there out.
+
+Work on yourself.
+
+Repetition Repetition Repetition Repetition

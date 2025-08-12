@@ -11,3 +11,7 @@ async def retrieve_single_show(show_id: int):
     with Session(engine) as session:
         show = session.exec(select(Show).where(Show.id == show_id)).all()
         return show    
+
+
+async def create_show():
+    ...
