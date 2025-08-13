@@ -1,17 +1,22 @@
-from sqlmodel import Session, select
+from fastapi.exceptions import HTTPException
+
+from sqlmodel import select
 from models.model import Show
-from db.db import engine
+from app.api.deps import SessionDep
 
-async def retrieve_shows():
-    with Session(engine) as session:
-        shows = session.exec(select(Show)).all()
-        return shows
+async def retrieve_shows(session: SessionDep):
+    shows = session.exec(select(Show)).all()
+    return shows
     
-async def retrieve_single_show(show_id: int):
-    with Session(engine) as session:
-        show = session.exec(select(Show).where(Show.id == show_id)).all()
-        return show    
+async def retrieve_single_show(session: SessionDep, show_id: int):
+    show = session.get(Show, show_id)
+    if not show:
+        raise HTTPException(
+            status_code=404,
+            detail="The show you searched for was not found"
+        )
+    return show
 
 
-async def create_show():
+async def create_show(session: SessionDep, show: ShowPayload):
     ...
