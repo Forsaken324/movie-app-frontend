@@ -10,7 +10,7 @@ class ShowCastLink(SQLModel, table=True):
 
 class ShowGenreLink(SQLModel, table=True):
     genre_id: uuid.UUID = Field(default_factory=uuid.uuid4, foreign_key="genre.id", primary_key=True)
-    show_id: uuid.UUID = Field(defaultfacetdefault_factory=uuid.uuid4, foreign_key="show.id", primary_key=True)
+    show_id: uuid.UUID = Field(default_factory=uuid.uuid4, foreign_key="show.id", primary_key=True)
 
 class Genre(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -38,5 +38,3 @@ class Show(SQLModel, table=True):
     runtime: int
 
 
-class Booking(SQLModel, table=True):
-    ...
