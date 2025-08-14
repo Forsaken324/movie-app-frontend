@@ -1,6 +1,7 @@
 import uuid
-
 from typing import List
+
+from pydantic import BaseModel
 from datetime import date
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -37,4 +38,14 @@ class Show(SQLModel, table=True):
     vote_count: int
     runtime: int
 
+class User(SQLModel, table=True):
+    ...
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
 

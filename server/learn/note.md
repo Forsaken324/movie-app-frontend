@@ -145,6 +145,8 @@ To achieve this, create a link table, it is just like any other table, but the c
 
 When updating or deleting from many to many relationships, we should remember that many to many relationships are often represented as lists, so in order for us to update a value, say we want to add, we can simply query the database for that table, which would return an object, then we can access the list that defines the relationship in that object, since we made use of the relationship constructor, and then we can simply append to that list, add the changes, and then commit the change. 
 
+
+
 ## Cascade Delete Relationships
 
 What happens if we delete a team that has a relationship with heroes? Should those heroes be automatically deleted too? That's called a "cascade", because the initial deletion causes a cascade of other deletions. Should their team_id instead be set to NULL in the database?
@@ -163,3 +165,49 @@ Get the things that should'nt be there out.
 Work on yourself.
 
 Repetition Repetition Repetition Repetition
+
+
+## Security
+
+JWT codifies a JSON object in a long dense string without spaces.
+
+It is not encrypted, but it is signed, so you can verify if you emitted that toke or not.
+
+You need to install pyjwt to generate and verify JWT tokens in python.
+
+A jwt token consists of a header, payload and signature, with each base64url encoded and seperated by dots. The server verifies the token's integrity by checking the signature, which is created using a secret key and the heaer and payload.
+
+The server verify's the JWT token by decoding it and recalculating the signature using the same algorithm and secret key. If the calculated signature matches the one in the token, the token is considered valid.
+
+The server doesn't store session information; it relies on the token itself for authorization.
+
+Bcrypt is the recommended password hashing algorithm.
+
+to make use of passlib, you need to install it, to specify the algorithm you would use, in our case bcrypt, we install it this way using pip
+
+``` shell
+
+pip install "passlib[bcrypt]"
+
+```
+
+pyd is compiled python code. written usually in languages like C or C++ to provide support to python programs where speed is important.
+
+In the context of hashing, a salt is a random string of characters added to a password before it's hashed. This makes the hashing process unique for each password even if two users have the same password.
+
+
+You can generate a random secret key using openssl
+
+``` shell
+
+openssl rand -hex 32
+
+```
+
+This secret key will be used as part of the signature for generating the JWT tokens.
+
+
+Time delta refers to a duration or difference between two points in time. It quantifies a time interval, such as the difference between two dates or times.
+
+
+
