@@ -158,6 +158,8 @@ What happens if we delete a team that has a relationship with heroes? Should tho
 An origin is a combination of protocol, domain and port
 
 
+
+
 dont end up as a film extra in someone else's life.
 
 Get the things that should'nt be there out.
@@ -210,4 +212,29 @@ This secret key will be used as part of the signature for generating the JWT tok
 Time delta refers to a duration or difference between two points in time. It quantifies a time interval, such as the difference between two dates or times.
 
 
+## Middleware
+
+A middleware is a function that works with every request before it is processed by any specific path opeartion. And also with every response before returning it.
+
+
+to create a middleware you use the decorator @app.middleware('http') on top a function.
+
+The middleware function receives:
+
+- The request
+- A function call_next that will receive the request as a parameter
+
+``` python
+
+@app.middleware('http')
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    process_time = time.perf_counter() - start_time
+    response.headers['X-Process-Time'] = str(process_time)
+    return response
+
+```
+
+Middlewares are stacked with each other, and are executed in order of outermost to innermost for requests for response , innermost to outermonst.
 

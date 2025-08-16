@@ -1,4 +1,4 @@
-from sqlmodel import Relationship, SQLModel, Relationship, Field, create_engine
+from sqlmodel import Relationship, SQLModel, Relationship, Field
 
 class Team(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
