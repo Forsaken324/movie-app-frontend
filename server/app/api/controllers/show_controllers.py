@@ -1,7 +1,7 @@
 from fastapi.exceptions import HTTPException
 import uuid
 from sqlmodel import select
-from app.model import Show
+from model import Show
 from api.deps import SessionDep
 
 async def retrieve_shows(session: SessionDep):

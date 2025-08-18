@@ -1,8 +1,15 @@
-from typing import Any
-from sqlmodel import select
-from app.api.deps import SessionDep
+from fastapi import HTTPException
+from api.deps import SessionDep
+from model import User
 
-def get_user(session: SessionDep, email: str) -> Any:
-    # user = session.exec(select(User).where(User.email == email)).first()
-    # return user
-    ...
+from api.deps import get_user
+from core.security import create_access_token, verify_password
+from core.config import settings
+
+async def authenticate(session: SessionDep, email: str, password: str) -> User | None:
+    user_in_db = get_user(session=session, email=email)
+    if not user_in_db:
+        return None
+    if not verify_password(password, user_in_db.hashed_password):
+        return None
+    return user_in_db

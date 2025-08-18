@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status
 from api.main import api_router
 from core.config import settings
-from app.model import *
+from model import *
 from sqlmodel import SQLModel
 from core.db import engine
 
