@@ -38,6 +38,18 @@ class Show(SQLModel, table=True):
     vote_count: int
     runtime: int
 
+class ShowIn(SQLModel):
+    title: str = Field(min_length=1, max_length=256, index=True)
+    overview: str = Field(min_length=1, max_length=256)
+    poster_path: str = Field(min_length=1, max_length=256)
+    backdrop_path: str = Field(min_length=1, max_length=256)
+    release_date: date
+    original_language: str = Field()
+    tagline: str = Field(max_length=256)
+    vote_average: float
+    vote_count: int
+    runtime: int
+    
 # class Seat(BaseModel):
 #     seat: str
 
@@ -75,11 +87,12 @@ class User(SQLModel, table=True):
     is_admin: bool = Field(default=False)
 
 
-class UserIn(BaseModel):
+class UserOut(BaseModel):
     firstname: str
     lastname: str
     username: str
     email: EmailStr
+class UserIn(UserOut):
     password: str = Field(regex='^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')
 
 

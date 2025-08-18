@@ -1,3 +1,5 @@
+import uuid
+
 from typing import Annotated, Generator
 
 from fastapi import Depends, status
@@ -17,7 +19,7 @@ from core import security
 from model import TokenPayLoad, User
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f'{settings.API_V1_STR}/common/login/access-token'
+    tokenUrl=f'{settings.API_V1_STR}/auth/login/access-token'
 )
 
 def get_session() -> Generator[Session, None, None]:
@@ -40,7 +42,7 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = session.get(User, token_data.sub)
+    user = session.get(User, uuid.UUID(token_data.sub, version=4))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
@@ -49,7 +51,7 @@ def get_user(session: SessionDep, email: str) -> User:
     user = session.exec(select(User).where(User.email == email)).first()
     return user
 
-def get_admin_user(user: Annotated[User, Depends(get_user)]):
+def get_admin_user(user: Annotated[User, Depends(get_current_user)]):
     if not user.is_admin:
         raise HTTPException(
             status_code=403,
@@ -57,3 +59,5 @@ def get_admin_user(user: Annotated[User, Depends(get_user)]):
             headers={'WWW-Authenticate': 'Bearer'}
         )
     return user
+
+AdminDep = Annotated[User, Depends(get_admin_user)]

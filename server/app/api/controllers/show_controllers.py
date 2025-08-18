@@ -15,7 +15,7 @@ async def retrieve_single_show(session: SessionDep, show_id: uuid.UUID):
             status_code=404,
             detail="The show you searched for was not found"
         )
-    return show
+    return show.model_dump_json()
 
 
 # async def create_show(session: SessionDep, show: ShowPayload):
