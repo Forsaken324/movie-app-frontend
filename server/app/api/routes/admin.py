@@ -1,6 +1,7 @@
 import uuid
 
 from typing import Annotated, Dict
+from app.api.lib.helpers import to_uuid4
 from model import ShowIn, User, Show
 
 from fastapi import APIRouter, status, HTTPException, Depends
@@ -31,8 +32,8 @@ async def create_show(session: SessionDep, show: ShowIn):
     return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
 
 @router.put('/update-show/{show_id}', dependencies=[Depends(get_admin_user)])
-async def update_show(session: SessionDep, show_id: uuid.UUID, show: ShowIn):
-    show_to_update = session.exec(select(Show).where(Show.id == show_id)).first()
+async def update_show(session: SessionDep, show_id: str, show: ShowIn):
+    show_to_update = session.exec(select(Show).where(Show.id == to_uuid4(show_id))).first()
     if not show_to_update:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -55,8 +56,8 @@ async def update_show(session: SessionDep, show_id: uuid.UUID, show: ShowIn):
     return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
 
 @router.delete('/show/{show_id}', dependencies=[Depends(get_admin_user)])
-async def delete_show(session: SessionDep, show_id: uuid.UUID):
-    unwanted_show = session.exec(select(Show).where(Show.id == show_id)).first()
+async def delete_show(session: SessionDep, show_id: str):
+    unwanted_show = session.exec(select(Show).where(Show.id == to_uuid4(show_id))).first()
     if not unwanted_show:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
