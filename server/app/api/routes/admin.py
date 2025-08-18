@@ -1,7 +1,7 @@
 import uuid
 
 from typing import Annotated, Dict
-from app.api.lib.helpers import to_uuid4
+from ..lib.helpers import to_uuid4
 from model import ShowIn, User, Show
 
 from fastapi import APIRouter, status, HTTPException, Depends
@@ -37,7 +37,8 @@ async def update_show(session: SessionDep, show_id: str, show: ShowIn):
     if not show_to_update:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="The show you want to delete was not found"
+            detail="The show you want to delete was not found",
+            headers={"www-authentication": "bearer"}
         )
     show_to_update.title = show.title
     show_to_update.overview = show.overview
