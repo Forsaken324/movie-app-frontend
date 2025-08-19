@@ -43,7 +43,7 @@ async def login(
         access_token=security.create_access_token(data=data)
     )
 
-@router.post('/login/test-token')
+@router.post('/login/test-token', response_model=UserOut)
 async def read_me(current_user: Annotated[UserOut, Depends(get_current_user)]):
     return current_user
 
@@ -62,7 +62,7 @@ async def sign_up(
 
 # @router.post('/make-admin')
 # async def make_admin(session: SessionDep):
-#     user = session.exec(select(User).where(User.id == uuid.UUID('666e3355390041f1a0a00a8e724f2279', version=4))).one()
+#     user = session.exec(select(User).where(User.id == uuid.UUID('177734a414704f1db29fd4a069f00797', version=4))).one()
 #     if not user:
 #         raise HTTPException()
 #     user.is_admin = True

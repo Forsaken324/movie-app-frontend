@@ -1,8 +1,10 @@
 import uuid
 
 from typing import Annotated, Dict
+
+from ..controllers.show_controllers import retrieve_single_show
 from ..lib.helpers import to_uuid4
-from model import ShowIn, User, Show
+from model import AddCast, AddGenre, Cast, CastPayload, Genre, ShowIn, User, Show
 
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.responses import JSONResponse
@@ -29,6 +31,55 @@ async def create_show(session: SessionDep, show: ShowIn):
     session.add(new_show)
     session.commit()
     
+    return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
+
+@router.post('/create-genre', dependencies=[Depends(get_admin_user)])
+async def create_genre(session: SessionDep, name: str):
+    genre = Genre(name=name)
+    session.add(genre)
+    session.commit()
+    return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
+
+@router.post('/show/add-genre/{show_id}', dependencies=[Depends(get_admin_user)])
+async def add_genre(session: SessionDep, payload: AddGenre):
+    show = await retrieve_single_show(session=session, show_id=payload.show_id)
+    for genre in payload.genres:
+        db_genre = session.exec(select(Genre).where(Genre.id == to_uuid4(genre))).first()
+        if not db_genre:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"the genre you tried to add {genre} does not exist."
+            )
+        show.genres.append(db_genre)
+    session.add(show)
+    session.commit()
+    return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
+
+@router.post('/casts', dependencies=[Depends(get_admin_user)])
+async def get_casts(session: SessionDep):
+    casts = session.exec(select(Cast)).all()
+    return casts    
+
+@router.post('/create-cast', dependencies=[Depends(get_admin_user)])
+async def create_cast(session: SessionDep, payload: CastPayload):
+    cast = Cast(name=payload.name, profile_path=payload.profile_path)
+    session.add(cast)
+    session.commit()
+    return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
+
+@router.post('/add-cast/{show_id}', dependencies=[Depends(get_admin_user)])
+async def add_cast(session: SessionDep, payload: AddCast):
+    show = await retrieve_single_show(session=session, show_id=payload.show_id)
+    for cast in payload.casts:
+        db_cast = session.exec(select(Cast).where(Cast.id == to_uuid4(cast))).first()
+        if not db_cast:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"The cast you tried to add {cast} was not found."
+            )
+        show.casts.append(db_cast)
+    session.add(show)
+    session.commit()
     return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
 
 @router.put('/update-show/{show_id}', dependencies=[Depends(get_admin_user)])
