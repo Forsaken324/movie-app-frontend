@@ -1,10 +1,8 @@
-import uuid
-
 from typing import Annotated, Dict
 
 from ..controllers.show_controllers import retrieve_single_show
 from ..lib.helpers import to_uuid4
-from model import AddCast, AddGenre, Cast, CastPayload, Genre, ShowIn, User, Show
+from model import AddCast, AddGenre, Cast, CastPayload, Genre, ShowIn, ShowTime, ShowTimeIn, User, Show
 
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.responses import JSONResponse
@@ -120,6 +118,42 @@ async def delete_show(session: SessionDep, show_id: str):
 
     return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
 
+@router.post('/show/set-active/{show_id}', dependencies=[Depends(get_admin_user)])
+async def set_show_active(session: SessionDep, show_id: str):
+    show = await retrieve_single_show(session=session, show_id=show_id)
+    show.is_active = True
+    session.add(show)
+    session.commit()
 
+    return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
+    
 
+@router.post('/show/set-time', dependencies=[Depends(get_admin_user)])
+async def set_show_time(session: SessionDep, payload: ShowTimeIn):
+    show = await retrieve_single_show(session=session, show_id=payload.show_id)
+    if not show.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="To set a time for a show, that show must first be active"
+        )
+    show_id_uuid = to_uuid4(payload.show_id)
+    date = payload.show_date.date()
+    show_time = payload.show_date.time()
+    time = ShowTime(show_id=show_id_uuid, show_date=date, show_time=show_time)
+    session.add(time)
+    session.commit()
 
+    return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
+
+@router.delete('/show/delete-time/{time_id}', dependencies=[Depends(get_admin_user)])
+async def delete_show_time(session: SessionDep, time_id: str):
+    time = session.exec(select(ShowTime).where(ShowTime.id == to_uuid4(time_id))).first()
+    if not time:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='The showtime was not found'
+        )
+    session.delete(time)
+    session.commit()
+
+    return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)

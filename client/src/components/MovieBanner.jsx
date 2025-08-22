@@ -19,8 +19,7 @@ const MovieBanner = ({ movie }) => {
                 <div className='pl-0 md:pl-10 w-auto md:w-[600px] '>
                     <div className='mt-10 mb-6'>
                         {/* {movie.original_language} */}
-                        <p className='font-semibold text-xl text-primary'>English</p>
-                        {console.log(movie)}
+                        <p className='font-semibold text-xl text-primary'>{movie.original_language}</p>
                         <h2 className='text-[36px] font-bold'>{movie.title}</h2>
                         <span className='flex items-center gap-3'><StarIcon className='w-4 h-4 text-primary fill-primary' /> {movie.vote_average.toFixed(1)} IMDb Rating</span>
                     </div>

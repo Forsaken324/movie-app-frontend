@@ -52,6 +52,13 @@ async def sign_up(
         session: SessionDep, user: UserIn
     ):
     hashed_password = security.get_hashed_password(user.password)
+    user_in_db = session.exec(select(User).where(User.email == user.email)).first()
+    if user_in_db:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This email has already been taken"
+        )
+    del user_in_db
     user_to_commit = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, hashed_password=hashed_password)
     session.add(user_to_commit)
     session.commit()

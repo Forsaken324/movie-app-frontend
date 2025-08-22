@@ -2,7 +2,7 @@ import uuid
 from typing import List
 
 from pydantic import BaseModel, EmailStr
-from datetime import date, datetime
+from datetime import date, datetime, time
 from sqlmodel import Field, Relationship, SQLModel
 
 class ShowCastLink(SQLModel, table=True):
@@ -39,6 +39,16 @@ class AddCast(SQLModel):
     show_id: str
     casts: List[str]
 
+class ShowTime(SQLModel, table=True):
+    id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
+    show_id: uuid.UUID = Field(foreign_key='show.id')
+    show_date: date
+    show_time: time
+
+class ShowTimeIn(SQLModel):
+    show_id: str
+    show_date: datetime
+
 class Show(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(min_length=1, max_length=256, index=True)
@@ -53,6 +63,7 @@ class Show(SQLModel, table=True):
     vote_average: float
     vote_count: int
     runtime: int
+    is_active: bool | None = False
 
 class ShowResponse(SQLModel):
     id: uuid.UUID
@@ -86,20 +97,15 @@ class ShowIn(SQLModel):
 
 class OccupiedSeat(SQLModel, table=True):
     seat: str
-    show_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, foreign_key='show.id')
-    user_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, foreign_key='user.id')
+    show_id: uuid.UUID = Field(primary_key=True, foreign_key='show.id')
+    user_id: uuid.UUID = Field(primary_key=True, foreign_key='user.id')
     date: datetime
-
-
-class ActiveShow(SQLModel, table=True):
-    id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
-    show_id: uuid.UUID = Field(foreign_key='show.id')
-    show_datetime: datetime
 
 class Booking(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
-    user_id: uuid.UUID = Field(default_factory=uuid.uuid4,foreign_key='user.id', index=True)
-    show_showid: uuid.UUID = Field(default_factory=uuid.uuid4, foreign_key='show.id', index=True)
+    user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
+    showid: uuid.UUID = Field(foreign_key='show.id', index=True)
+    show_time: datetime
     amount: float
     is_paid: bool
 
@@ -112,7 +118,7 @@ class User(SQLModel, table=True):
     firstname: str
     lastname: str
     username: str = Field(index=True)
-    email: EmailStr = Field(index=True)
+    email: EmailStr = Field(index=True, unique=True)
     hashed_password: str
     image_path: str | None = Field(default=None)
     is_admin: bool = Field(default=False)
@@ -122,6 +128,7 @@ class UserOut(BaseModel):
     lastname: str
     username: str
     email: EmailStr
+
 class UserIn(UserOut):
     password: str = Field(regex='^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')
 
@@ -134,25 +141,25 @@ class TokenPayLoad(SQLModel):
     sub: str | None = None
 
 
-{
-  "show_id": "string",
-  "casts": [
-    "d26a9dee3b1d40758e97bdf1434ec57b",
-    "786da84441df4e83b21ec341719be28c",
-    "c46b25bee6704625ba381f544accb21d",
-    "a8a02de5c4644af0977e536edd694587",
-    "422ee813eae44125998e895d24944b6f",
-    "9f53fbda98534e24b0831dc31dc81b61",
-    "ab523dfb1f724efd974852e77c5dee46",
-    "88d82563072b4cdeb396134ff40801cd",
-    "3e47fff9b92342fea244a5910e98d4b3",
-    "84aeb72bd86f4adab5337055541bd918",
-    "020a77faca184cde83be037d6b582cf7",
-    "98e2517a8dde4d5182cd0f396ef6be68",
-    "e7e002a4445346b39fd74e9515a86bf2",
-    "02df770fed1845dea536384a62184bd9",
-    "09060bccff404f6a9adadb3a8480875d",
-    "4c3a0a9c467b4e60bb5cb78765b0998b",
-    "792fde94817241f5bb0ec5e8676ea522"
-  ]
-}
+# {
+#   "show_id": "string",
+#   "casts": [
+#     "d26a9dee3b1d40758e97bdf1434ec57b",
+#     "786da84441df4e83b21ec341719be28c",
+#     "c46b25bee6704625ba381f544accb21d",
+#     "a8a02de5c4644af0977e536edd694587",
+#     "422ee813eae44125998e895d24944b6f",
+#     "9f53fbda98534e24b0831dc31dc81b61",
+#     "ab523dfb1f724efd974852e77c5dee46",
+#     "88d82563072b4cdeb396134ff40801cd",
+#     "3e47fff9b92342fea244a5910e98d4b3",
+#     "84aeb72bd86f4adab5337055541bd918",
+#     "020a77faca184cde83be037d6b582cf7",
+#     "98e2517a8dde4d5182cd0f396ef6be68",
+#     "e7e002a4445346b39fd74e9515a86bf2",
+#     "02df770fed1845dea536384a62184bd9",
+#     "09060bccff404f6a9adadb3a8480875d",
+#     "4c3a0a9c467b4e60bb5cb78765b0998b",
+#     "792fde94817241f5bb0ec5e8676ea522"
+#   ]
+# }
