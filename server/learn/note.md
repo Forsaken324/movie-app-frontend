@@ -238,3 +238,7 @@ async def add_process_time_header(request: Request, call_next):
 
 Middlewares are stacked with each other, and are executed in order of outermost to innermost for requests for response , innermost to outermonst.
 
+
+# Python Discoveries
+
+- The default dict class, gotten from the built-in collections module, is used to provide a default value for a nonexistent key in a dictionary, eliminating the need for checking if the key exists before using it.

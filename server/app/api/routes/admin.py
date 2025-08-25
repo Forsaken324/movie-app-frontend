@@ -137,9 +137,9 @@ async def set_show_time(session: SessionDep, payload: ShowTimeIn):
             detail="To set a time for a show, that show must first be active"
         )
     show_id_uuid = to_uuid4(payload.show_id)
-    date = payload.show_date.date()
-    show_time = payload.show_date.time()
-    time = ShowTime(show_id=show_id_uuid, show_date=date, show_time=show_time)
+    # date = payload.show_date.date()
+    # show_time = payload.show_date.time()
+    time = ShowTime(show_id=show_id_uuid, show_time=payload.show_time)
     session.add(time)
     session.commit()
 
@@ -157,3 +157,4 @@ async def delete_show_time(session: SessionDep, time_id: str):
     session.commit()
 
     return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
+

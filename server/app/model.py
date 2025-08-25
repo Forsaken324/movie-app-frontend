@@ -42,12 +42,11 @@ class AddCast(SQLModel):
 class ShowTime(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
     show_id: uuid.UUID = Field(foreign_key='show.id')
-    show_date: date
-    show_time: time
+    show_time: datetime
 
 class ShowTimeIn(SQLModel):
     show_id: str
-    show_date: datetime
+    show_time: datetime
 
 class Show(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)

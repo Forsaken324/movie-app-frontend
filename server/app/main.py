@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.main import api_router
 from core.config import settings
 from model import *
-from sqlmodel import SQLModel, Session
+from sqlmodel import SQLModel, Session, select
 from core.db import engine
 from core.security import get_hashed_password
 from dotenv import load_dotenv
@@ -32,8 +32,13 @@ def initialiseDB():
             hashed_password=password,
             is_admin=True
         )
-        session.add(user)
-        session.commit()
+
+        user_id_db = session.exec(select(User).where(User.email == user.email)).first()
+        if user_id_db:
+            del user
+        else:
+            session.add(user)
+            session.commit()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
