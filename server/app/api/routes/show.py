@@ -1,13 +1,16 @@
+import os
+
 from typing import List
 from collections import defaultdict
 
 from fastapi import APIRouter
-from api.deps import SessionDep
+from api.deps import SessionDep, get_user
 import uuid
 from api.controllers.show_controllers import retrieve_shows, retrieve_single_show
-from model import ShowResponse, ShowTime
+from model import ShowResponse, ShowTime, BookingIn
 from sqlmodel import select
 from api.lib.helpers import to_uuid4
+
 
 
 router = APIRouter(
@@ -15,6 +18,8 @@ router = APIRouter(
     tags=['shows'],
     responses={404: {"description": "Not found"}},
 )
+
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_TEST_SECRET')
 
 @router.get('/', response_model=List[ShowResponse])
 async def get_shows(session: SessionDep):
@@ -45,3 +50,31 @@ async def get_show_time(session: SessionDep, show_id: str):
     
     return grouped
 
+
+@router.post('/book-show/{show_id}')
+async def book_show(session: SessionDep, show_id: str, user: Depends(get_user), booking_payload: BookingIn):
+    show = await retrieve_single_show(show_id)
+    booked_seats_in = booking_payload.booked_seats
+    total_amout = booking_payload.amount * len(booked_seats_in)
+
+    booking = Booking(user_id=user.id, show_id=to_uuid4(show_id), show_time=booking_payload.show_time, amount=total_amount)
+    session.add(booking)
+    session.commit()
+
+    occupied_seats = session.exec(select(OccupiedSeat.seat)
+
+    for seat in booked_seats_in:
+        pending_db_seat = OccupiedSeat(show_id=booking.show_id, user_id=user.id, booking_id=booking.id)
+        session.add(pending_db_seat)
+        session.commit()
+
+
+    
+    
+
+
+@router.post('/show/make-payment/{booking_id}')
+async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Depends(get_user)):
+    booking = session.exec(select(Booking).where(Booking.id == to_uuid4(booking_id)).first()
+    if booking:
+        ...

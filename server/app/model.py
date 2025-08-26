@@ -90,23 +90,35 @@ class ShowIn(SQLModel):
     vote_average: float
     vote_count: int
     runtime: int
-    
-# class Seat(BaseModel):
-#     seat: str
 
 class OccupiedSeat(SQLModel, table=True):
     seat: str
     show_id: uuid.UUID = Field(primary_key=True, foreign_key='show.id')
     user_id: uuid.UUID = Field(primary_key=True, foreign_key='user.id')
-    date: datetime
+    booking_id: uuid.UUID = Field(primary_key=True, foreign_key='booking.id')
 
-class Booking(SQLModel, table=True):
+class Transaction(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
-    showid: uuid.UUID = Field(foreign_key='show.id', index=True)
+    show_id: uuid.UUID = Field(foreign_key='show.id', index=True)
+    transaction_reference: str
+    transaction_status: str
+
+    
+class BookingIn(SQLModel):
+    user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
+    show_id: uuid.UUID = Field(foreign_key='show.id', index=True)
+    show_time: datetime
+    booked_seats: list[str]
+    amount: float
+    
+class Booking(BookingIn, table=True):
+    id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
+    show_id: uuid.UUID = Field(foreign_key='show.id', index=True)
     show_time: datetime
     amount: float
-    is_paid: bool
+    is_paid: bool | None = False
 
 class Favourites(SQLModel, table=True):
     user_id: uuid.UUID = Field(default_factory=uuid.uuid4, foreign_key='user.id', primary_key=True)
@@ -129,7 +141,7 @@ class UserOut(BaseModel):
     email: EmailStr
 
 class UserIn(UserOut):
-    password: str = Field(regex='^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')
+    password: str = Field(regex=r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')
 
 
 class Token(SQLModel):

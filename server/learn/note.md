@@ -242,3 +242,27 @@ Middlewares are stacked with each other, and are executed in order of outermost 
 # Python Discoveries
 
 - The default dict class, gotten from the built-in collections module, is used to provide a default value for a nonexistent key in a dictionary, eliminating the need for checking if the key exists before using it.
+
+
+# Paystack Integration
+
+When working with paystack, you can initiate a transaction for a customer containing the customers email, amount, phone number, reference -> This should be unique, currency -> The currency in which amount should be charged, when a transaction is initialized, an access_code is returned, this access code can then be used by the frontend to provide the user interface for completing the transaction.
+
+Then you need to verify the transaction status by using either webhooks or the verify transactions endpoint. when verifying status, you get the status and the amount, if the amount does not match the value of the service you are offering, dont deliver value to the customer.
+
+When you initialize a transaction you can also provide a callback_url to be called after a transaction has been made, to redirect your user.
+You can also have a cancel url, used to cancel a transaction, you can set this by adding a dictionary with key of cancel_action, and value of your url to cancel the transation, this will be called when the user wants to cancel a transaction.
+
+Format of paystack callback response
+
+https://siwes-web-app.vercel.app/?trxref=referenceno
+
+When you receive the reference, you use it to call the verify endpoint
+
+
+## Webhooks
+
+A webhook is an automated, event driven message sent from one application to another over the internet when a specific event occurs, like a new order being placed or a file being uploaded. A webhook makes use of a push notification system. 
+This allows for realtime communication between systems, enabling immediate updates and the triggering of automated workflows without constant polling for new data.
+
+A webhook url is a post endpoint that a resource server sends updates to.
