@@ -92,27 +92,29 @@ class ShowIn(SQLModel):
     runtime: int
 
 class OccupiedSeat(SQLModel, table=True):
+    id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
     seat: str
-    show_id: uuid.UUID = Field(primary_key=True, foreign_key='show.id')
-    user_id: uuid.UUID = Field(primary_key=True, foreign_key='user.id')
-    booking_id: uuid.UUID = Field(primary_key=True, foreign_key='booking.id')
+    show_id: uuid.UUID = Field(foreign_key='show.id', index=True)
+    user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
+    booking_id: uuid.UUID = Field(foreign_key='booking.id')
 
 class Transaction(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
     show_id: uuid.UUID = Field(foreign_key='show.id', index=True)
-    transaction_reference: str
+    booking_id: uuid.UUID = Field(foreign_key='booking.id', index=True)
+    transaction_reference: str = Field(unique=True)
     transaction_status: str
+    created_at: datetime
+    paid_at: datetime | None = None
 
     
 class BookingIn(SQLModel):
-    user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
-    show_id: uuid.UUID = Field(foreign_key='show.id', index=True)
     show_time: datetime
     booked_seats: list[str]
     amount: float
     
-class Booking(BookingIn, table=True):
+class Booking(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key='user.id', index=True)
     show_id: uuid.UUID = Field(foreign_key='show.id', index=True)

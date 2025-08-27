@@ -1,16 +1,20 @@
 import os
 
-from typing import List
+from typing import List, Annotated
 from collections import defaultdict
+from datetime import datetime
 
-from fastapi import APIRouter
-from api.deps import SessionDep, get_user
+from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.responses import JSONResponse, RedirectResponse
+from api.deps import SessionDep, get_current_user
 import uuid
 from api.controllers.show_controllers import retrieve_shows, retrieve_single_show
-from model import ShowResponse, ShowTime, BookingIn
+from model import ShowResponse, ShowTime, BookingIn, User, Booking, OccupiedSeat, Transaction
+from core.config import settings
 from sqlmodel import select
 from api.lib.helpers import to_uuid4
 
+import paystack
 
 
 router = APIRouter(
@@ -19,7 +23,9 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_TEST_SECRET')
+PAYSTACK_SECRET_KEY= os.getenv('PAYSTACK_TEST_SECRET')
+paystack.api_key= PAYSTACK_SECRET_KEY
+CALLBACK_URL = os.getenv('BACKEND_URL')
 
 @router.get('/', response_model=List[ShowResponse])
 async def get_shows(session: SessionDep):
@@ -52,29 +58,76 @@ async def get_show_time(session: SessionDep, show_id: str):
 
 
 @router.post('/book-show/{show_id}')
-async def book_show(session: SessionDep, show_id: str, user: Depends(get_user), booking_payload: BookingIn):
-    show = await retrieve_single_show(show_id)
+async def book_show(session: SessionDep, show_id: str, user: Annotated[User, Depends(get_current_user)], booking_payload: BookingIn):
+    show = await retrieve_single_show(session=session, show_id=show_id)
     booked_seats_in = booking_payload.booked_seats
-    total_amout = booking_payload.amount * len(booked_seats_in)
+    total_amount = booking_payload.amount * len(booked_seats_in)
+    time_zone = booking_payload.show_time.tzinfo
+    todays_date = datetime.now(time_zone)
+
+    if booking_payload.show_time < todays_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'You cannot book for a day in the past, contact the admin'
+        )
+    del time_zone
+    del todays_date
 
     booking = Booking(user_id=user.id, show_id=to_uuid4(show_id), show_time=booking_payload.show_time, amount=total_amount)
     session.add(booking)
-    session.commit()
-
-    occupied_seats = session.exec(select(OccupiedSeat.seat)
+    occupied_seats = set(session.exec(select(OccupiedSeat.seat).where(OccupiedSeat.show_id == to_uuid4(show_id))).all())
 
     for seat in booked_seats_in:
-        pending_db_seat = OccupiedSeat(show_id=booking.show_id, user_id=user.id, booking_id=booking.id)
+        if seat in occupied_seats:
+            del booking
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f'The seat you selected {seat} is already occupied'
+            )
+
+        pending_db_seat = OccupiedSeat(seat=seat, show_id=booking.show_id, user_id=user.id, booking_id=booking.id)
         session.add(pending_db_seat)
-        session.commit()
 
-
+    session.commit()
     
-    
+    return JSONResponse('Successful', status_code=status.HTTP_200_OK)
 
 
 @router.post('/show/make-payment/{booking_id}')
-async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Depends(get_user)):
-    booking = session.exec(select(Booking).where(Booking.id == to_uuid4(booking_id)).first()
-    if booking:
-        ...
+async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annotated[User, Depends(get_current_user)]):
+    booking = session.exec(select(Booking).where(Booking.id == to_uuid4(booking_id))).first()
+    time_zn = booking.show_time.tzinfo
+    today = datetime.now(time_zn)
+    if not booking:
+        raise HTTPException(
+            detail='The booking you want to make a payment for does not exist',
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+    verify_transaction_url = CALLBACK_URL + settings.API_V1_STR + 
+    response = paystack.Transaction.initialize(
+        email=user.email,
+        amount=booking.amount,
+        callback_url=verify_transaction_url,
+        reference=f'Payment for booked show {booking_id}'
+
+    )
+    if not response.status:
+        raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="An error occured when processing the transaction"
+        )
+     
+    transaction = Transaction(
+        user_id=user.id,
+        show_id=booking.show_id,
+        booking_id=booking.id,
+        transaction_reference=response.data.reference,
+        transaction_status='ongoing',
+        created_at=today
+    )
+    
+    session.add(transaction)
+    session.commit()
+
+    return RedirectResponse(response.data.authorization_url)
+

@@ -158,3 +158,18 @@ async def delete_show_time(session: SessionDep, time_id: str):
 
     return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
 
+
+@router.delete('/show/cancel-booking/{booking_id}', dependencies=[Depends(get_admin_user)])
+async def cancel_booking(session: SessionDep, booking_id: str):
+    booking = session.exec(select(Booking).where(Booking.id == to_uuid4(booking_id))).first()
+    if not booking:
+        raise HTTPExeception(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='The booking you want to cancel does not exist',
+        )
+
+    session.delete(booking)
+    session.commit()
+    
+    return JSONResponse('Deleted successfully', status_code=status.HTTP_204_NO_CONTENT)
+

@@ -67,6 +67,22 @@ async def sign_up(
 
     return JSONResponse(content=message, status_code=status.HTTP_201_CREATED)
 
+@router.get('/verify-show-payment', dependencies=[Depends(get_current_user)])
+async def verify_payment(session: SessionDep, trxref: str, reference: str):
+    response= paystack.Transaction.verify(
+        reference=reference
+    )
+    transaction = session.exec(select(Transaction).where(Transaction.reference == reference))).one()
+    transaction.transaction_status=response.data.status
+
+    if transaction.transaction_status == 'success':
+        transaction.paid_at=response.data.paid_at
+
+        
+    
+    
+
+
 # @router.post('/make-admin')
 # async def make_admin(session: SessionDep):
 #     user = session.exec(select(User).where(User.id == uuid.UUID('177734a414704f1db29fd4a069f00797', version=4))).one()
