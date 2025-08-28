@@ -2,7 +2,7 @@ from typing import Annotated, Dict
 
 from ..controllers.show_controllers import retrieve_single_show
 from ..lib.helpers import to_uuid4
-from model import AddCast, AddGenre, Cast, CastPayload, Genre, ShowIn, ShowTime, ShowTimeIn, User, Show
+from model import AddCast, AddGenre, Booking, Cast, CastPayload, Genre, ShowIn, ShowTime, ShowTimeIn, User, Show
 
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.responses import JSONResponse
@@ -163,7 +163,7 @@ async def delete_show_time(session: SessionDep, time_id: str):
 async def cancel_booking(session: SessionDep, booking_id: str):
     booking = session.exec(select(Booking).where(Booking.id == to_uuid4(booking_id))).first()
     if not booking:
-        raise HTTPExeception(
+        raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='The booking you want to cancel does not exist',
         )

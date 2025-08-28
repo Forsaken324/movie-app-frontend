@@ -15,6 +15,9 @@ from sqlmodel import select
 from api.lib.helpers import to_uuid4
 
 import paystack
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 router = APIRouter(
@@ -59,7 +62,6 @@ async def get_show_time(session: SessionDep, show_id: str):
 
 @router.post('/book-show/{show_id}')
 async def book_show(session: SessionDep, show_id: str, user: Annotated[User, Depends(get_current_user)], booking_payload: BookingIn):
-    show = await retrieve_single_show(session=session, show_id=show_id)
     booked_seats_in = booking_payload.booked_seats
     total_amount = booking_payload.amount * len(booked_seats_in)
     time_zone = booking_payload.show_time.tzinfo
@@ -103,25 +105,30 @@ async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annota
             detail='The booking you want to make a payment for does not exist',
             status_code=status.HTTP_400_BAD_REQUEST
         )
-    verify_transaction_url = CALLBACK_URL + settings.API_V1_STR + 
+    if not CALLBACK_URL:
+        raise HTTPException(
+            detail='sorry callback url was not found',
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    verify_transaction_url = CALLBACK_URL + settings.API_V1_STR + '/auth/verify-show-payment'
     response = paystack.Transaction.initialize(
         email=user.email,
         amount=booking.amount,
         callback_url=verify_transaction_url,
-        reference=f'Payment for booked show {booking_id}'
-
     )
+    print(response.data)
+    
     if not response.status:
         raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="An error occured when processing the transaction"
         )
-     
+    
     transaction = Transaction(
         user_id=user.id,
         show_id=booking.show_id,
         booking_id=booking.id,
-        transaction_reference=response.data.reference,
+        transaction_reference=response.data['reference'],
         transaction_status='ongoing',
         created_at=today
     )
@@ -129,5 +136,5 @@ async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annota
     session.add(transaction)
     session.commit()
 
-    return RedirectResponse(response.data.authorization_url)
+    return response.data['authorization_url']
 

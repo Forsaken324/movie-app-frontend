@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from typing import Annotated    
@@ -10,12 +11,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from ..deps import SessionDep, get_current_user
 import crud
-from model import Token, User, UserIn, UserOut
+from model import Token, User, UserIn, UserOut, Transaction, Booking
 from core import security
 
 from sqlmodel import select
 
 from typing import Annotated
+import paystack
 
 router = APIRouter(
     prefix='/auth',
@@ -72,11 +74,34 @@ async def verify_payment(session: SessionDep, trxref: str, reference: str):
     response= paystack.Transaction.verify(
         reference=reference
     )
-    transaction = session.exec(select(Transaction).where(Transaction.reference == reference))).one()
-    transaction.transaction_status=response.data.status
-
+    transaction = session.exec(select(Transaction).where(Transaction.transaction_reference == reference)).one()
+    booking = session.exec(select(Booking).where(Booking.id == transaction.booking_id)).one()
+    transaction.transaction_status=response.data['status']
+    date_format= r'%Y-%m-%dT%H:%M:%S.%fZ'
+    
     if transaction.transaction_status == 'success':
-        transaction.paid_at=response.data.paid_at
+        transaction.paid_at=datetime.strptime(response.data['paid_at'], date_format)
+        booking.is_paid = True
+        session.add(transaction)    
+        session.add(booking)
+        session.commit()
+        return JSONResponse(
+            'payment successful',
+            status_code=status.HTTP_200_OK,
+        )
+    
+    del booking
+
+    session.add(transaction)
+    session.commit()
+
+    return JSONResponse(
+        'Your transaction was not successful, for further enquiries contact the admin',
+        status_code=status.HTTP_204_NO_CONTENT,
+    )
+
+    
+    
 
         
     
