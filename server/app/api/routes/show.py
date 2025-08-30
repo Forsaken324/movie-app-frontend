@@ -116,7 +116,6 @@ async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annota
         amount=booking.amount,
         callback_url=verify_transaction_url,
     )
-    print(response.data)
     
     if not response.status:
         raise HTTPException(

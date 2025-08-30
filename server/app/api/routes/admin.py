@@ -2,7 +2,7 @@ from typing import Annotated, Dict
 
 from ..controllers.show_controllers import retrieve_single_show
 from ..lib.helpers import to_uuid4
-from model import AddCast, AddGenre, Booking, Cast, CastPayload, Genre, ShowIn, ShowTime, ShowTimeIn, User, Show
+from model import AddCast, AddGenre, Booking, Cast, CastPayload, Genre, OccupiedSeat, ShowIn, ShowTime, ShowTimeIn, User, Show
 
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.responses import JSONResponse
@@ -167,9 +167,20 @@ async def cancel_booking(session: SessionDep, booking_id: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='The booking you want to cancel does not exist',
         )
-
+    occupied_seats = session.exec(select(OccupiedSeat).where(OccupiedSeat.booking_id == booking.id)).all()
     session.delete(booking)
+    session.delete(occupied_seats)
     session.commit()
     
     return JSONResponse('Deleted successfully', status_code=status.HTTP_204_NO_CONTENT)
 
+
+@router.get('/dashboard', dependencies=[Depends(get_admin_user)])
+async def dashboard(session: SessionDep):
+    bookings = session.exec(select(Booking)).all()
+    total_bookings = len(bookings)
+    total_revenue = 0
+    # for booking in bookings:
+    #     if 
+
+    # create a special table that will help you store all the admin's details
