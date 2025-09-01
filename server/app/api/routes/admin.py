@@ -25,7 +25,7 @@ success_message: Dict[str, str] = {
 @router.post('/create-show', dependencies=[Depends(get_admin_user)])
 async def create_show(session: SessionDep, show: ShowIn):
     new_show = Show(
-        title=show.title, overview=show.overview, poster_path=show.poster_path, backdrop_path=show.backdrop_path, release_date=show.release_date, original_language=show.original_language, tagline=show.tagline, vote_average=show.vote_average, vote_count=show.vote_count, runtime=show.runtime
+        title=show.title, overview=show.overview, poster_path=show.poster_path, backdrop_path=show.backdrop_path, release_date=show.release_date, original_language=show.original_language, tagline=show.tagline, vote_average=show.vote_average, vote_count=show.vote_count, runtime=show.runtime, price=show.price
     )
     session.add(new_show)
     session.commit()
@@ -145,6 +145,11 @@ async def set_show_inactive(session: SessionDep, show_id: str):
     session.add(show)
     session.commit()
 
+@router.get('/show/list-time', dependencies=[Depends(get_admin_user)])
+async def list_show_time(session: SessionDep):
+    show_times = session.exec(select(ShowTime)).all()
+    return show_times
+
 @router.post('/show/set-time', dependencies=[Depends(get_admin_user)])
 async def set_show_time(session: SessionDep, payload: ShowTimeIn):
     show = await retrieve_single_show(session=session, show_id=payload.show_id)
@@ -254,7 +259,12 @@ async def list_bookings(session: SessionDep):
     for booking in bookings:
         payload = {}
         payload['_id'] = booking.id
-        user = session.exec(select(User).where(User.id == Booking.user_id)).one()
+        user = session.exec(select(User).where(User.id == Booking.user_id)).first()
+        if not user:
+            raise HTTPException(
+                detail='The user that booked a show was not found',
+                status_code=status.HTTP_409_CONFLICT
+            )
         show = await retrieve_single_show(session=session, show_id=str(Booking.show_id))
         booked_seats = session.exec(select(OccupiedSeat).where(OccupiedSeat.booking_id == Booking.id)).all()
 

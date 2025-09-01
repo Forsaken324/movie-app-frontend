@@ -178,3 +178,6 @@ class TokenPayLoad(SQLModel):
 #     "792fde94817241f5bb0ec5e8676ea522"
 #   ]
 # }
+
+
+# task: implement favourite
