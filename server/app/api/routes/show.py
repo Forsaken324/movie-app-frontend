@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from api.deps import SessionDep, get_current_user
 import uuid
 from api.controllers.show_controllers import retrieve_shows, retrieve_single_show
-from model import ShowResponse, ShowTime, BookingIn, User, Booking, OccupiedSeat, Transaction
+from model import Show, ShowResponse, ShowTime, BookingIn, User, Booking, OccupiedSeat, Transaction
 from core.config import settings
 from sqlmodel import select
 from api.lib.helpers import to_uuid4
@@ -63,7 +63,8 @@ async def get_show_time(session: SessionDep, show_id: str):
 @router.post('/book-show/{show_id}')
 async def book_show(session: SessionDep, show_id: str, user: Annotated[User, Depends(get_current_user)], booking_payload: BookingIn):
     booked_seats_in = booking_payload.booked_seats
-    total_amount = booking_payload.amount * len(booked_seats_in)
+    show = await retrieve_single_show(session=session, show_id=show_id)
+    total_amount = show.price * len(booked_seats_in)
     time_zone = booking_payload.show_time.tzinfo
     todays_date = datetime.now(time_zone)
 
@@ -74,6 +75,7 @@ async def book_show(session: SessionDep, show_id: str, user: Annotated[User, Dep
         )
     del time_zone
     del todays_date
+    del show
 
     booking = Booking(user_id=user.id, show_id=to_uuid4(show_id), show_time=booking_payload.show_time, amount=total_amount)
     session.add(booking)
@@ -135,5 +137,6 @@ async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annota
     session.add(transaction)
     session.commit()
 
-    return response.data['authorization_url']
+    payment_url = response.data['authorization_url']
+    return RedirectResponse(payment_url)
 

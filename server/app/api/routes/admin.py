@@ -1,4 +1,5 @@
 from typing import Annotated, Dict
+from datetime import datetime
 
 from ..controllers.show_controllers import retrieve_single_show
 from ..lib.helpers import to_uuid4
@@ -127,6 +128,22 @@ async def set_show_active(session: SessionDep, show_id: str):
 
     return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
     
+@router.post('/show/set-inactive/{show_id}', dependencies=[Depends(get_admin_user)])
+async def set_show_inactive(session: SessionDep, show_id: str):
+    show = await retrieve_single_show(session=session, show_id=show_id)
+    booking = session.exec(select(Booking).where(Booking.show_id == show.id)).first()
+    if booking:
+        tzone = booking.show_time.tzinfo
+        today = datetime.now(tzone)
+        if booking.show_time > today:
+            raise HTTPException(
+                detail='Cannot set a show inactive, when that show has been booked for a future date',
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+    del booking
+    show.is_active = False
+    session.add(show)
+    session.commit()
 
 @router.post('/show/set-time', dependencies=[Depends(get_admin_user)])
 async def set_show_time(session: SessionDep, payload: ShowTimeIn):
@@ -153,6 +170,13 @@ async def delete_show_time(session: SessionDep, time_id: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='The showtime was not found'
         )
+    booked_slot = session.exec(select(Booking).where(Booking.show_time == time.show_time)).first()
+    if booked_slot:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Cannot delete a time, when that time has already been booked'
+        )
+    del booked_slot
     session.delete(time)
     session.commit()
 
@@ -180,7 +204,78 @@ async def dashboard(session: SessionDep):
     bookings = session.exec(select(Booking)).all()
     total_bookings = len(bookings)
     total_revenue = 0
-    # for booking in bookings:
-    #     if 
+    for booking in bookings:
+        if booking.is_paid:
+            total_revenue += booking.amount
+    del bookings
+    users = session.exec(select(User)).all()
+    total_users = len(users)
+    active_shows = session.exec(select(Show).where(Show.is_active == True)).all()
+    del users
+
+    response = {}
+    response['total_bookings'] = total_bookings
+    response['total_revenue'] = total_revenue
+    response['total_user'] = total_users
+    response['active_shows'] = active_shows
+
+    return response
+
+@router.get('/list-shows', dependencies=[Depends(get_admin_user)])
+async def list_shows(session: SessionDep):
+    response = []
+    shows = session.exec(select(Show)).all()
+    for show in shows:
+        payload = {}
+        payload['show_title'] = show.title
+
+        show_times = session.exec(select(ShowTime).where(ShowTime.show_id == show.id)).all()
+        
+        for time in show_times:
+            show_bookings = session.exec(select(Booking).where(Booking.show_id == show.id and Booking.show_time == time and Booking.is_paid == True)).all()
+            total_bookings = len(show_bookings)
+            earnings = 0
+
+            for booking in show_bookings:
+                earnings += booking.amount
+
+            payload['show_time'] = time
+            payload['total_bookings'] = total_bookings
+            payload['earnings'] = earnings
+
+            response.append(payload)
+        
+    return response
+
+@router.get('/list-bookings', dependencies=[Depends(get_admin_user)])
+async def list_bookings(session: SessionDep):
+    bookings = session.exec(select(Booking)).all()
+    response = []
+    for booking in bookings:
+        payload = {}
+        payload['_id'] = booking.id
+        user = session.exec(select(User).where(User.id == Booking.user_id)).one()
+        show = await retrieve_single_show(session=session, show_id=str(Booking.show_id))
+        booked_seats = session.exec(select(OccupiedSeat).where(OccupiedSeat.booking_id == Booking.id)).all()
+
+        payload['user'] = {'name': user.firstname}
+        payload['show'] = {
+            '_id': show.id,
+            'show': show,
+            'show_date_time': booking.show_time,
+            'show_price': show.price
+        }
+        payload['amount'] = booking.amount
+        payload['booked_seats'] = booked_seats
+        payload['is_paid'] = booking.is_paid
+
+        response.append(payload)
+    
+    return response
+
+        
+        
+
+
 
     # create a special table that will help you store all the admin's details

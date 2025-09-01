@@ -63,6 +63,7 @@ class Show(SQLModel, table=True):
     vote_count: int
     runtime: int
     is_active: bool | None = False
+    price: float
 
 class ShowResponse(SQLModel):
     id: uuid.UUID
@@ -78,6 +79,7 @@ class ShowResponse(SQLModel):
     vote_average: float
     vote_count: int
     runtime: int
+    price: float
 
 class ShowIn(SQLModel):
     title: str = Field(min_length=1, max_length=256, index=True)
@@ -90,6 +92,7 @@ class ShowIn(SQLModel):
     vote_average: float
     vote_count: int
     runtime: int
+    price: float
 
 class OccupiedSeat(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -112,7 +115,6 @@ class Transaction(SQLModel, table=True):
 class BookingIn(SQLModel):
     show_time: datetime
     booked_seats: list[str]
-    amount: float
     
 class Booking(SQLModel, table=True):
     id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True)
