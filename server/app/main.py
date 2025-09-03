@@ -52,7 +52,8 @@ app = FastAPI(
 
 origins = [
     'http://localhost:5173',
-    'https://checkout.paystack.com'
+    'https://checkout.paystack.com',
+    'https://paystack.com'
 ]
 
 app.add_middleware(

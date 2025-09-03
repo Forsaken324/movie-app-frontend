@@ -138,5 +138,5 @@ async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annota
     session.commit()
 
     payment_url = response.data['authorization_url']
-    return RedirectResponse(payment_url)
+    return payment_url
 
