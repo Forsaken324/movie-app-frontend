@@ -19,16 +19,22 @@ import AddShows from './pages/admin/AddShows'
 import ListShows from './pages/admin/ListShows'
 import ListBookings from './pages/admin/ListBookings'
 
+import { useAuth } from './hooks/useAuth'
+import LoginXSignup from './components/LoginXAuth'
 
 const App = () => {
 
   const isAdminRoute = useLocation().pathname.startsWith('/admin');
+  const {showAuthScreen} = useAuth();
 
   return (
     <>
     {/* in order to be able to use the toast notification in any component, we must add the toaster component here or in our main.tsx */}
       <Toaster /> 
       {!isAdminRoute && <NavBar />}
+      {
+        showAuthScreen ? <LoginXSignup mode={'login'}/> : ''
+      }
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/movies' element={<Movies />} />
