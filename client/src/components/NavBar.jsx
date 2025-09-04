@@ -2,18 +2,16 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { assets } from '../assets/assets'
-import { MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react'
+import { MenuIcon, SearchIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
-import { useClerk, UserButton, useUser } from '@clerk/clerk-react'
 import { useAuth } from '../hooks/useAuth'
 
 const NavBar = () => {
 
     const [menuOpen, setMenuOpen] = useState(false);
-    const { user } = useUser();
-    const { openSignIn } = useClerk();
+    
     const navigate = useNavigate(); 
-    const { _showAuthScreen, setShowAuthScreen } = useAuth();
+    const { setShowAuthScreen, isLoggedIn, authenticatedUsername } = useAuth();
 
     const handleLinkClick = () => {
         scrollTo(0, 0); // automatically scroll to the top of the screen, the scrollTo is used to scroll.
@@ -42,9 +40,15 @@ const NavBar = () => {
             </div>
             <div className='flex items-center gap-8'>
                 <SearchIcon className='max-md:hidden w-6 h-6 cursor-pointer' />
-                <button onClick={handleAuth} className="px-4 py-2 sm:px-7 sm:py-2 bg-primary hover:bg-dull-primary transition rounded-xl font-medium cursor-pointer">
-                    Login
-                </button>
+                {
+                    isLoggedIn ? (
+                        <p>{authenticatedUsername}</p>
+                    ): (
+                    <button onClick={handleAuth} className="px-4 py-2 sm:px-7 sm:py-2 bg-primary hover:bg-dull-primary transition rounded-xl font-medium cursor-pointer">
+                        Login
+                    </button>  
+                    )
+                }
 
                 {/* {
                     !user ? (<button onClick={openSignIn} className="px-4 py-2 sm:px-7 sm:py-2 bg-primary hover:bg-dull-primary transition rounded-xl font-medium cursor-pointer">
