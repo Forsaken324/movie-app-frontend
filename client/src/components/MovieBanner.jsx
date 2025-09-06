@@ -18,7 +18,7 @@ const MovieBanner = ({ movie }) => {
     const { setShowAuthScreen } = useAuth();
 
     const addToFavourites = async () => {
-        const token = lookInSession('token');
+        const token = lookInSession('quick_token');
         await axios.post(BACKEND_URL + `/user/add-favourite-show/${movie.id}`, {}, {
             headers: {
                 'Authorization': `Bearer ${token}`

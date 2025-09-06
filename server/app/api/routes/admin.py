@@ -49,6 +49,11 @@ async def add_genre(session: SessionDep, payload: AddGenre):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"the genre you tried to add {genre} does not exist."
             )
+        if db_genre in show.genres:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='This genre has already been added to the show'
+            )
         show.genres.append(db_genre)
     session.add(show)
     session.commit()
@@ -75,6 +80,11 @@ async def add_cast(session: SessionDep, payload: AddCast):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"The cast you tried to add {cast} was not found."
+            )
+        if db_cast in show.casts:
+            raise HTTPException(
+                detail='This cast has already been added to the show',
+                status_code=status.HTTP_400_BAD_REQUEST
             )
         show.casts.append(db_cast)
     session.add(show)

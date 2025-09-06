@@ -115,7 +115,7 @@ async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annota
             detail='sorry callback url was not found',
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-    verify_transaction_url = CALLBACK_URL + settings.API_V1_STR + '/auth/verify-show-payment'
+    verify_transaction_url = CALLBACK_URL + settings.API_V1_STR + '/user/my-bookings'
     response = paystack.Transaction.initialize(
         email=user.email,
         amount=booking.amount,

@@ -1,6 +1,8 @@
 import { timeFormat } from "../lib/timeFormat";
 import { Dot } from "lucide-react";
-
+import axios from "axios";
+import { lookInSession } from "../common/session";
+import toast from "react-hot-toast";
 
 const BookedCard = ({booking}) => {
     const currency = import.meta.env.VITE_CURRENCY;
@@ -12,6 +14,37 @@ const BookedCard = ({booking}) => {
         hour12: true
     });
     const totalTickets = booking.booked_seats.length;
+
+    const makeBookingPayment = async () => {
+
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+        const token = lookInSession('quick_token');
+        if (!token)
+        {
+            scrollTo(0, 0);
+            document.body.style.overflow = "hidden";
+            setShowAuthScreen(true);
+            return toast.error("Sorry, you need to be logged in first");
+        }
+
+        await axios.post(BACKEND_URL + `/shows/show/make-payment/${booking.id}`, {}, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (response.status == 200)
+            {
+                window.location.href = response.data
+            }
+        })
+        .catch(error => {
+            toast.error(error.message)
+        })
+
+    }
+
     return (
         <div className="bg-primary/10 border border-primary/30 flex flex-col md:flex-row md:items-center md:justify-between w-auto sm:w-[823px] my-6 px-2 py-3 mr-4 rounded-xl">
             <div className="flex gap-4">
@@ -27,7 +60,7 @@ const BookedCard = ({booking}) => {
             <div className="flex flex-col h-full justify-evenly">
                 <div className="flex gap-3 items-center pt-2">
                     <p className="font-bold text-[25px]">{currency} {booking.amount}</p>
-                    {!booking.is_paid && <button className="bg-primary hover:bg-primary-dull duration-300 transition px-4 py-1.5 mt-2 mb-3 text-sm rounded-lg font-medium cursor-pointer">Pay Now</button>}
+                    {!booking.is_paid && <button className="bg-primary hover:bg-primary-dull duration-300 transition px-4 py-1.5 mt-2 mb-3 text-sm rounded-lg font-medium cursor-pointer" onClick={makeBookingPayment}>Pay Now</button>}
                 </div>
                 <div className="text-sm text-gray-400">
                     <p>Total TIckets: <span className="text-white font-bold">{totalTickets}</span></p>

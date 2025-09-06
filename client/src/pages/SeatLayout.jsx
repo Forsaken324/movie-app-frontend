@@ -141,6 +141,10 @@ const SeatLayout = () => {
           setShowAuthScreen(true);
           return;
         }
+        if (error.status == 400)
+        {
+          return toast.error('You cannot book for a date in the past');
+        }
         console.error("Error: ", error);
       });
   };

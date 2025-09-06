@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import MovieCard from "../components/MovieCard";
 import BlurCircle from "../components/BlurCircle";
 import axios from "axios";
-import { useAuth } from "../hooks/useAuth";
 
 const Movies = () => {
   const [shows, setShows] = useState(null);
 
-  const {showAuthScreen} = useAuth();
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -27,7 +25,7 @@ const Movies = () => {
 
   useEffect(() => {
     getShows();
-  });
+  }, []);
 
   return shows ? (
     <div className="relative my-40 mb-60 px-6 md:px-16 lg:px-40 xl:px-44 overflow-hidden min-h-[80vh]">
