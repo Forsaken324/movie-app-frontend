@@ -80,13 +80,16 @@ async def book_show(session: SessionDep, show_id: str, user: Annotated[User, Dep
     booking = Booking(user_id=user.id, show_id=to_uuid4(show_id), show_time=booking_payload.show_time, amount=total_amount)
     session.add(booking)
     occupied_seats = set(session.exec(select(OccupiedSeat.seat).where(OccupiedSeat.show_id == to_uuid4(show_id))).all())
+    bookings_time_in_db = set(session.exec(select(Booking.show_time).where(Booking.show_id == to_uuid4(show_id))).all())
 
     for seat in booked_seats_in:
-        if seat in occupied_seats:
-            del booking
+        if seat in occupied_seats and booking_payload.show_time in bookings_time_in_db:
+            seat_booking = session.exec(select(Booking))
+            session.delete(seat_booking)
+            session.commit()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f'The seat you selected {seat} is already occupied'
+                detail=f'The seat you selected {seat} is already occupied for that date and time'
             )
 
         pending_db_seat = OccupiedSeat(seat=seat, show_id=booking.show_id, user_id=user.id, booking_id=booking.id)

@@ -2,6 +2,10 @@ import { HeartIcon, StarIcon } from 'lucide-react';
 import { timeFormat } from '../lib/timeFormat';
 import BlurCircle from './BlurCircle';
 import { Dot, PlayCircleIcon } from 'lucide-react';
+import axios from 'axios';
+import { lookInSession } from '../common/session';
+import toast from 'react-hot-toast';
+import { useAuth } from '../hooks/useAuth';
 
 const MovieBanner = ({ movie }) => {
     const date = new Date(movie.release_date);
@@ -9,6 +13,35 @@ const MovieBanner = ({ movie }) => {
         month: 'long',
         year: 'numeric',
     })}`
+
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const { setShowAuthScreen } = useAuth();
+
+    const addToFavourites = async () => {
+        const token = lookInSession('token');
+        await axios.post(BACKEND_URL + `/user/add-favourite-show/${movie.id}`, {}, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if(response.status == 200)
+            {
+                return toast.success('Marked as favourite');
+            }
+        })
+        .catch(error => {
+            if(error.status == 403)
+            {
+                scrollTo(0,0);
+                document.body.style.overflow = 'hidden';
+                setShowAuthScreen(true);
+                return;
+            }
+            console.log('Error: ', error);
+        })
+    }
+
     return (
         <div className='mt-[180px] md:ml-7'>
             <BlurCircle className={'left-[100px] top-[95px] md:left-[150px] md:top-[120px] xl:left-[750px] xl:top-[150px]'}/>
@@ -30,7 +63,7 @@ const MovieBanner = ({ movie }) => {
                     <div className='flex gap-5 mt-8'>
                         <button className='flex items-center justify-center gap-2 bg-blueish-gray h-[44px] w-[161px] hover:bg-light-blueish-gray transition duration-300 rounded-lg'><PlayCircleIcon strokeWidth={1.6} />Watch Trailer</button>
                         <a href="#select-date"><div className='bg-primary flex items-center justify-center w-[135px] h-[44px] text-sm rounded-lg hover:bg-primary-dull transition duration-300'>Buy Tickets</div></a>
-                        <button className='flex justify-center items-center h-[41px] w-[41px] bg-light-blueish-gray rounded-full hover:bg-blueish-gray transition duration-300'><HeartIcon /></button>
+                        <button className='flex justify-center items-center h-[41px] w-[41px] bg-light-blueish-gray rounded-full hover:bg-blueish-gray transition duration-300' onClick={addToFavourites}><HeartIcon /></button>
                     </div>
                 </div>
             </div>

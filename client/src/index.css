@@ -28,4 +28,9 @@
   {
     scrollbar-width: none;
   }
+
+  .scroll-thin
+  {
+    scrollbar-width: thin;
+  }
 }

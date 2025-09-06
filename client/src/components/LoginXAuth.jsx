@@ -26,11 +26,11 @@ const LoginXSignup = () => {
         setShowAuthScreen(false)
     }
 
-    const loginUser = (email, password) => {
+    const loginUser = async (email, password) => {
         const formData = new FormData();
         formData.append('username', email);
         formData.append('password', password);
-        axios.post(VITE_BACKEND_URL + '/auth/login/access-token', formData, {
+        await axios.post(VITE_BACKEND_URL + '/auth/login/access-token', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -38,7 +38,7 @@ const LoginXSignup = () => {
         .then(response => {
             if(response.status == 200)
             {
-                storeInSession(response.data.access_token, 'token');
+                storeInSession(response.data.access_token, 'quick_token');
                 const token = response.data.access_token;
                 axios.post(VITE_BACKEND_URL + '/auth/login/test-token', {}, {
                     headers: {
@@ -74,7 +74,7 @@ const LoginXSignup = () => {
         })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         if (loginMode)
@@ -91,7 +91,7 @@ const LoginXSignup = () => {
             'password': password
         }
 
-        axios.post(VITE_BACKEND_URL + '/auth/sign-up', signUpPayload)
+        await axios.post(VITE_BACKEND_URL + '/auth/sign-up', signUpPayload)
         .then(response => {
             if(response.status == 201)
             {

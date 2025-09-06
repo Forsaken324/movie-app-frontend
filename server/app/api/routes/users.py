@@ -1,9 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from api.deps import SessionDep, get_current_user
-from model import Booking, User
+from model import Booking, User, OccupiedSeat, Favourites
 from sqlmodel import select
+
+from api.controllers.show_controllers import retrieve_single_show
+from api.lib.helpers import to_uuid4
 
 router = APIRouter(
     prefix='/user',
@@ -13,8 +17,45 @@ router = APIRouter(
 
 @router.get('/my-bookings')
 async def get_user_bookings(session: SessionDep, user: Annotated[User, Depends(get_current_user)]):
+    response = []
     bookings = session.exec(select(Booking).where(Booking.user_id == user.id)).all()
-    return bookings
+    for booking in bookings:
+        show = await retrieve_single_show(session=session, show_id=str(booking.show_id))
+        booked_seats = session.exec(select(OccupiedSeat.seat).where(OccupiedSeat.booking_id == booking.id and OccupiedSeat.user_id == user.id)).all()
+        payload = {
+            'id': booking.id,
+            'user': {'name': user.username},
+            'show': {
+                'id': show.id,
+                'movie': show,
+                'show_date_time': booking.show_time,
+                'show_price': show.price
+            },
+            'amount': booking.amount,
+            'booked_seats': booked_seats,
+            'is_paid': booking.is_paid
+        }
+        response.append(payload)
+    return response[::-1]
 
+
+@router.get('/favourite-shows')
+async def get_user_favourite_shows(session: SessionDep, user: Annotated[User, Depends(get_current_user)]):
+    response = []
+    favourites = session.exec(select(Favourites).where(Favourites.user_id == user.id)).all()
+
+    for favourite in favourites:
+        show = await retrieve_single_show(session=session, show_id=str(favourite.show_id))
+        response.append(show)
+
+    return response
     
-
+@router.post('/add-favourite-show/{show_id}')
+async def add_favourite_show(session: SessionDep,show_id: str, user: Annotated[User, Depends(get_current_user)]):
+    favourite = Favourites(user_id=user.id, show_id=to_uuid4(show_id)) # type: ignore
+    session.add(favourite)
+    session.commit()
+    return JSONResponse(
+        content={'message': 'successful'},
+        status_code=status.HTTP_200_OK,
+    )

@@ -1,24 +1,69 @@
 import React, { useEffect, useState } from 'react'
-import { dummyBookingData } from '../assets/assets';
 import BookedCard from '../components/BookedCard';
 import BlurCircle from '../components/BlurCircle';
 import LoadingAnimation from '../components/animations/LoadingAnimation';
+import axios from 'axios';
+import { lookInSession } from '../common/session';
+import toast from 'react-hot-toast';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const MyBookings = () => {
 
-  const [bookings, setBookings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [bookings, setBookings] = useState(null);
+
+  const navigate = useNavigate;
+
+  const { setShowAuthScreen } = useAuth();
+
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   const getMyBookings = async () => {
-    setBookings(dummyBookingData);
-    setIsLoading(false);
+    const authToken = lookInSession('quick_token');
+
+    if(!authToken)
+    {
+      toast.error('You need to be logged in to check your bookings')
+      setShowAuthScreen(true);
+      document.body.style.overflow = 'hidden';
+      return;
+    }
+    await axios.get(BACKEND_URL + '/user/my-bookings', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    })
+        .then(response => {
+          if (response.status == 200)
+          {
+            setBookings(response.data);
+            return;
+          }
+          else
+          {
+            toast.error('Sorry an error occured, try again later');
+            navigate('/');
+          }
+        })
+        .catch(error => {
+          if (error.status == 403)
+          {
+            scrollTo(0,0);
+            document.body.style.overflow = 'hidden';
+            toast.error('Sorry an error occurred, you need to sign in again')
+            setShowAuthScreen(true)
+            return;
+          }
+          console.log('Error: ', error);
+          return;
+        })
   }
 
   useEffect(() => {
     getMyBookings();
   }, [])
 
-  return !isLoading ? (
+  return bookings ? (
     <div className='md:mt-[50px] md:pt-30 md:pl-10 lg:p-30'>
       <BlurCircle className='top-[100px] left-0 md:left-[100px]'/>
       <div className='w-full'>

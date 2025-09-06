@@ -6,6 +6,8 @@ import MovieCast from '../components/MovieCast';
 import DateSelect from '../components/DateSelect';
 import Recommendations from '../components/Recommendations';
 import LoadingAnimation from '../components/animations/LoadingAnimation';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const MovieDetails = () => {
 
@@ -14,10 +16,41 @@ const MovieDetails = () => {
   // const [movie, setMovie] = useState(null);
   const [show, setShow] = useState(null);
 
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const getShow = async () => {
-    const show = dummyShowsData.find((show) => show._id === id);
+    const show = await axios.get(BACKEND_URL + `/shows/${id}`)
+        .then(response => {
+          if(response.status == 200)
+          {
+            return response.data
+          }
+          else
+          {
+            return toast.error('An error occured, try again later');
+          }
+        })
+        .catch(error => {
+          console.error('Error: ', error);
+        })
+    
+    const showAiringDates = await axios.get(BACKEND_URL + `/shows/${id}/time`)
+        .then(response => {
+          if(response.status == 200)
+          {
+            return response.data
+          }
+          else
+          {
+            return toast.error('An error occured, try again later');
+          }
+        })
+        .catch(error => {
+          console.error('Error: ', error);
+        })
+
     if (show) {
-      setShow({ movie: show, dateTime: dummyDateTimeData })
+      setShow({ movie: show, dateTime: showAiringDates })
     }
 
   }
