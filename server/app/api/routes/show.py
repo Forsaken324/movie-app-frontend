@@ -28,7 +28,7 @@ router = APIRouter(
 
 PAYSTACK_SECRET_KEY= os.getenv('PAYSTACK_TEST_SECRET')
 paystack.api_key= PAYSTACK_SECRET_KEY
-CALLBACK_URL = os.getenv('BACKEND_URL')
+CALLBACK_URL = os.getenv('FRONTEND_URL')
 
 @router.get('/', response_model=List[ShowResponse])
 async def get_shows(session: SessionDep):
@@ -115,7 +115,7 @@ async def pay_for_booked_show(session: SessionDep, booking_id: str, user: Annota
             detail='sorry callback url was not found',
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-    verify_transaction_url = CALLBACK_URL + settings.API_V1_STR + '/user/my-bookings'
+    verify_transaction_url = CALLBACK_URL + '/my-bookings'
     response = paystack.Transaction.initialize(
         email=user.email,
         amount=booking.amount,

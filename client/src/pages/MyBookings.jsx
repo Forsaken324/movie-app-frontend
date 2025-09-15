@@ -6,7 +6,7 @@ import axios from 'axios';
 import { lookInSession } from '../common/session';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const MyBookings = () => {
 
@@ -15,6 +15,7 @@ const MyBookings = () => {
   const navigate = useNavigate;
 
   const { setShowAuthScreen } = useAuth();
+  const [searchParams] = useSearchParams();
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -28,7 +29,19 @@ const MyBookings = () => {
       document.body.style.overflow = 'hidden';
       return;
     }
-    await axios.get(BACKEND_URL + '/user/my-bookings', {
+
+    const trxref = searchParams.get('trxref');
+
+    const reference = searchParams.get('reference');
+
+    let url = BACKEND_URL + '/user/my-bookings'
+
+    if (trxref && reference)
+    {
+      url = BACKEND_URL + `/user/my-bookings?trxref=${trxref}&reference=${reference}`
+    }
+
+    await axios.get(url, {
       headers: {
         'Authorization': `Bearer ${authToken}`
       }
@@ -36,7 +49,13 @@ const MyBookings = () => {
         .then(response => {
           if (response.status == 200)
           {
-            setBookings(response.data);
+            setBookings(response.data['bookings']);
+            const responsePaymentMessage = response.data['payment_message'];
+            if (responsePaymentMessage !== '')
+            {
+              toast(responsePaymentMessage);
+              return
+            }
             return;
           }
           else

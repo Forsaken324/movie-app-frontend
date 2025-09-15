@@ -6,12 +6,14 @@ import { MenuIcon, SearchIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
+import Profile from './Profile'
+
 const NavBar = () => {
 
     const [menuOpen, setMenuOpen] = useState(false);
     
     const navigate = useNavigate(); 
-    const { setShowAuthScreen, isLoggedIn, authenticatedUsername } = useAuth();
+    const { setShowAuthScreen, isLoggedIn } = useAuth();
 
     const handleLinkClick = () => {
         scrollTo(0, 0); // automatically scroll to the top of the screen, the scrollTo is used to scroll.
@@ -42,7 +44,7 @@ const NavBar = () => {
                 <SearchIcon className='max-md:hidden w-6 h-6 cursor-pointer' />
                 {
                     isLoggedIn ? (
-                        <p>{authenticatedUsername}</p>
+                        <Profile />
                     ): (
                     <button onClick={handleAuth} className="px-4 py-2 sm:px-7 sm:py-2 bg-primary hover:bg-dull-primary transition rounded-xl font-medium cursor-pointer">
                         Login

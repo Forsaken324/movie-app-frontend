@@ -61,6 +61,7 @@ const LoginXSignup = () => {
                 setIsLoading(false);
                 cancelAuthScreen();
                 toast.success('Login successful');
+                window.location.reload()
                 return
 
 

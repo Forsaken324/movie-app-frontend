@@ -27,7 +27,8 @@ const MovieBanner = ({ movie }) => {
         .then(response => {
             if(response.status == 200)
             {
-                return toast.success('Marked as favourite');
+                const message = response.data['message'];
+                return toast.success(message);
             }
         })
         .catch(error => {

@@ -3,10 +3,12 @@ import { Dot } from "lucide-react";
 import axios from "axios";
 import { lookInSession } from "../common/session";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 const BookedCard = ({booking}) => {
     const currency = import.meta.env.VITE_CURRENCY;
     const date = new Date(booking.show.show_date_time);
+    const [isLoading, setIsLoading] = useState(false);
     const time = date.toLocaleTimeString('en-GB', {
         hour: '2-digit',
         minute: '2-digit',
@@ -27,7 +29,8 @@ const BookedCard = ({booking}) => {
             setShowAuthScreen(true);
             return toast.error("Sorry, you need to be logged in first");
         }
-
+        setIsLoading(true);
+        toast.loading('Initiating payment, buckle up')
         await axios.post(BACKEND_URL + `/shows/show/make-payment/${booking.id}`, {}, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -40,8 +43,13 @@ const BookedCard = ({booking}) => {
             }
         })
         .catch(error => {
-            toast.error(error.message)
+            toast.error(error.message);
+            setIsLoading(false);
         })
+        
+    }
+
+    const handlePrintTicket = () => {
 
     }
 
@@ -60,7 +68,8 @@ const BookedCard = ({booking}) => {
             <div className="flex flex-col h-full justify-evenly">
                 <div className="flex gap-3 items-center pt-2">
                     <p className="font-bold text-[25px]">{currency} {booking.amount}</p>
-                    {!booking.is_paid && <button className="bg-primary hover:bg-primary-dull duration-300 transition px-4 py-1.5 mt-2 mb-3 text-sm rounded-lg font-medium cursor-pointer" onClick={makeBookingPayment}>Pay Now</button>}
+                    {!booking.is_paid && <button className={` ${isLoading ? 'disabled cursor-not-allowed bg-gray-300' : 'bg-primary hover:bg-primary-dull'} duration-300 transition px-4 py-1.5 mt-2 mb-3 text-sm rounded-lg font-medium cursor-pointer`} onClick={makeBookingPayment}>Pay Now</button>}
+                    {booking.is_paid && <button className={` ${isLoading ? 'disabled cursor-not-allowed bg-gray-300' : 'bg-[#111111] hover:bg-black'} duration-300 transition px-4 py-1.5 mt-2 mb-3 text-sm rounded-lg font-medium cursor-pointer`} onClick={handlePrintTicket}>Print ticket</button>}
                 </div>
                 <div className="text-sm text-gray-400">
                     <p>Total TIckets: <span className="text-white font-bold">{totalTickets}</span></p>

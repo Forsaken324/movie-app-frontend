@@ -143,6 +143,7 @@ class UserOut(BaseModel):
     lastname: str
     username: str
     email: EmailStr
+    image_path: str | None 
 
 class UserIn(UserOut):
     password: str = Field(regex=r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')

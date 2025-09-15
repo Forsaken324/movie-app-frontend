@@ -160,6 +160,10 @@ async def list_show_time(session: SessionDep):
     show_times = session.exec(select(ShowTime)).all()
     return show_times
 
+# @router.post('/show/create-time', dependencies=[Depends(get_admin_user)])
+# async def create_time(session: SessionDep):
+#     ...
+
 @router.post('/show/set-time', dependencies=[Depends(get_admin_user)])
 async def set_show_time(session: SessionDep, payload: ShowTimeIn):
     show = await retrieve_single_show(session=session, show_id=payload.show_id)
@@ -201,11 +205,13 @@ async def delete_show_time(session: SessionDep, time_id: str):
 @router.delete('/show/cancel-booking/{booking_id}', dependencies=[Depends(get_admin_user)])
 async def cancel_booking(session: SessionDep, booking_id: str):
     booking = session.exec(select(Booking).where(Booking.id == to_uuid4(booking_id))).first()
+    
     if not booking:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='The booking you want to cancel does not exist',
         )
+    
     occupied_seats = session.exec(select(OccupiedSeat).where(OccupiedSeat.booking_id == booking.id)).all()
     session.delete(booking)
     session.delete(occupied_seats)

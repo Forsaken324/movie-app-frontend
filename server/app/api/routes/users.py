@@ -5,13 +5,12 @@ from fastapi.responses import JSONResponse
 from api.deps import SessionDep, get_current_user
 from model import Booking, ShowResponse, User, OccupiedSeat, Favourites
 from sqlmodel import select
+from core.config import settings
 
 from api.controllers.show_controllers import retrieve_single_show
 from api.lib.helpers import to_uuid4
+from api.lib.payment_handlers import verify_payment
 
-import requests
-
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,24 +24,31 @@ router = APIRouter(
 
 @router.get('/my-bookings')
 async def get_user_bookings(session: SessionDep, user: Annotated[User, Depends(get_current_user)], trxref: str | None = None, reference: str | None = None):
+    payment_message = ''
+    print(f'references: {trxref}, {reference}')
     if trxref and reference:
-        backend_url: str | None = os.getenv('BACKEND_URL')
-        if not backend_url:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='incomplete development keys'
-            )
-        verify_payment_url = backend_url + f'/verify-show-payment?trxref={trxref}&reference={reference}'
-        response = requests.get(verify_payment_url)
-        if response.status_code == 200:
-            return JSONResponse(
-                content={'message':'payment successful'},
-                status_code=status.HTTP_200_OK
-            )
-        return JSONResponse(
-            content={'message': 'Your transaction was not successful or is pending, please contact the admin for more details'},
-            status_code=status.HTTP_400_BAD_REQUEST
-        )
+        payment_message = await verify_payment(session=session, trxref=trxref, reference=reference)
+        # frontend_url: str | None = os.getenv('FRONTEND_URL')
+        # backend_url: str | None = os.getenv('BACKEND_URL')
+        
+        # if not frontend_url or not backend_url:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #         detail='incomplete development keys'
+        #     )
+        # verify_payment_url = backend_url + settings.API_V1_STR +  f'/auth/verify-show-payment?trxref={trxref}&reference={reference}'
+        # headers = {
+        #     'Authorization': f'Bearer {}'
+        # }
+        # try:
+        #     paystack_response = requests.get(verify_payment_url)
+        #     if paystack_response.status_code == 200:
+        #         payment_message = 'Your payment was successful.'
+        #     else:
+        #         payment_message = 'Your payment was not successful or is pending.'
+        # except:
+        #     payment_message = 'Sorry an error occured while processing your payment'
+    
     response = []
     bookings = session.exec(select(Booking).where(Booking.user_id == user.id)).all()
     for booking in bookings:
@@ -62,7 +68,13 @@ async def get_user_bookings(session: SessionDep, user: Annotated[User, Depends(g
             'is_paid': booking.is_paid
         }
         response.append(payload)
-    return response[::-1]
+
+    final_response = {
+        'payment_message': payment_message,
+        'bookings': response[::-1]
+    }
+
+    return final_response
 
 
 @router.get('/favourite-shows', response_model=List[ShowResponse])
@@ -76,20 +88,24 @@ async def get_user_favourite_shows(session: SessionDep, user: Annotated[User, De
 
     return response
     
+
 @router.post('/add-favourite-show/{show_id}')
 async def add_favourite_show(session: SessionDep,show_id: str, user: Annotated[User, Depends(get_current_user)]):
     favourite = Favourites(user_id=user.id, show_id=to_uuid4(show_id)) # type: ignore
     favourite_in_db = set(session.exec(select(Favourites.show_id).where(Favourites.user_id == user.id)).all())
     if favourite.show_id in favourite_in_db:
-        del favourite
-        del favourite_in_db
-        raise HTTPException(
-            detail='You have already added this show as a favourite',
-            status_code=status.HTTP_400_BAD_REQUEST
+        favourite_to_remove = session.exec(select(Favourites).where(Favourites.user_id == user.id and Favourites.show_id == favourite.show_id)).one()
+        session.delete(favourite_to_remove)
+        session.commit()
+
+        return JSONResponse(
+            content={'message': 'Show successfully removed from favourites'},
+            status_code=status.HTTP_200_OK
         )
+    
     session.add(favourite)
     session.commit()
     return JSONResponse(
-        content={'message': 'successful'},
+        content={'message': 'Show successfully added to favourites'},
         status_code=status.HTTP_200_OK,
     )
