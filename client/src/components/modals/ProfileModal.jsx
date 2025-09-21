@@ -1,24 +1,31 @@
 import { removeFromSession } from "../../common/session";
 import useApp from "../../hooks/useApp";
 import { Link } from "react-router-dom";
-import { ClipboardList, LogOut } from 'lucide-react';
+import { ClipboardList, LogOut, UserRoundPen } from 'lucide-react';
+import { useState } from "react";
+import EditProfile from "../slides/EditProfile";
+import {motion} from 'motion/react'
+
 
 const ProfileModal = () => {
   const { user, showProfileScreen, setShowProfileScreen } = useApp();
-
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const handleLogUserOut = () => {
     removeFromSession("quick_token");
     window.location.reload();
   };
 
   return (
-    <div
-      className="flex flex-col items-end absolute z-300 items-center h-full w-full"
+    <motion.div
+      className="flex flex-col items-end fixed inset-0 z-300 items-center"
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      transition={{duration: .5}}
       style={{ backgroundColor: "rgba(0, 0, 0, 0.85)" }}
       onClick={() => setShowProfileScreen(false)}
     >
-      <div
-        className="bg-[#111111] w-[400px] h-[200px] m-5 rounded-lg"
+      <motion.div
+        className="bg-[#111111] md:w-[400px] h-auto m-3 md:m-5 rounded-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-3 flex gap-3">
@@ -37,16 +44,21 @@ const ProfileModal = () => {
           </div>
         </div>
         <hr className="text-gray-400" />
-        <div className="py-5 px-3 flex gap-2 font-bold">
-            <ClipboardList /><Link to={'/my-bookings'}>my bookings</Link>
+        <div className="py-5 px-3 flex gap-2">
+            <ClipboardList /><Link to={'/my-bookings'} onClick={() => setShowProfileScreen(false)}>my bookings</Link>
+        </div>
+        <hr className="text-gray-400" />
+        <div className="py-5 px-3">
+          <button className={`flex gap-2 ${showEditProfile ? 'pb-2' : ''}`} onClick={() => setShowEditProfile(!showEditProfile)}><UserRoundPen /> edit profile</button>
+          {showEditProfile && <EditProfile />}
         </div>
         <hr className="text-gray-400" />
         <div className="py-4 px-3 flex gap-2" onClick={handleLogUserOut}>
-            <LogOut className="text-red-400" /><button className="text-red-400">Logout</button>
+            <LogOut className="text-red-400" /><button className="text-red-400">logout</button>
         </div>
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 };
 

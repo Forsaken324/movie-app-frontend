@@ -80,6 +80,7 @@ const MyBookings = () => {
 
   useEffect(() => {
     getMyBookings();
+    scrollTo(0,0);
   }, [])
 
   return bookings ? (
@@ -88,7 +89,7 @@ const MyBookings = () => {
       <div className='w-full'>
         <BlurCircle className='bottom-0 md:left-[600px]'/>
       </div>
-      <h2 className='font-bold text-[20px] pb-10 mt-30 ml-5 sm:ml-5 sm:mt-0'>My Bookings</h2>
+      <h2 className='font-bold text-[20px] pb-10 mt-30 ml-5 sm:ml-5 md:mt-0'>My Bookings</h2>
       <div className='pl-5 md:p-0'>
         {bookings.map((movie, index) => (
           <BookedCard key={index} booking={movie}/>

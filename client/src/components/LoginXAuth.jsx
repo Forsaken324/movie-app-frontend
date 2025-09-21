@@ -71,6 +71,7 @@ const LoginXSignup = () => {
         })
         .catch(error => {
             console.log('Error: ', error)
+            setIsLoading(false);
             return
         })
     }
@@ -89,6 +90,7 @@ const LoginXSignup = () => {
             'lastname': lastname,
             'username': username,
             'email': email,
+            'image_path': null,
             'password': password
         }
 
@@ -102,17 +104,25 @@ const LoginXSignup = () => {
                 return
             } else if (response.status == 400)
             {
+                setIsLoading(false);
                 return toast.error('The credentials you provided already exists, proceed to login or edit credentials')
+                
             }
         })
         .catch(error => {
+            if(error.status == 400)
+            {
+                setIsLoading(false);
+                toast.error('The credentials you provided already exists, proceed to login or edit credentials')
+                return;
+            }
             console.log('Error: ', error);
         })
     }
 
 
     return (
-    <div className="flex flex-col items-center absolute z-300 items-center h-full w-full" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }} onClick={cancelAuthScreen}>
+    <div className="flex flex-col items-center fixed inset-0 z-300 items-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }} onClick={cancelAuthScreen}>
         <div className="flex flex-col items-center justify-center bg-white text-black mt-20 py-5 px-10 rounded rounded-lg" onClick={(e) => e.stopPropagation()}>
             <button className="ml-[90%]" onClick={cancelAuthScreen}><X /></button>
             <h2>Sign in to <span className="font-bold">Quickshow</span></h2>

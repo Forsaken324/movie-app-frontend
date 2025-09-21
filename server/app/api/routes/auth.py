@@ -61,7 +61,10 @@ async def sign_up(
             detail="This email has already been taken"
         )
     del user_in_db
-    user_to_commit = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, hashed_password=hashed_password)
+    default_image = 'https://placehold.co/100x100'
+    if user.image_path:
+        default_image = user.image_path
+    user_to_commit = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, hashed_password=hashed_password, image_path=default_image)
     session.add(user_to_commit)
     session.commit()
 

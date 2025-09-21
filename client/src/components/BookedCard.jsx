@@ -54,7 +54,7 @@ const BookedCard = ({booking}) => {
     }
 
     return (
-        <div className="bg-primary/10 border border-primary/30 flex flex-col md:flex-row md:items-center md:justify-between w-auto sm:w-[823px] my-6 px-2 py-3 mr-4 rounded-xl">
+        <div className="bg-primary/10 border border-primary/30 flex flex-col md:flex-row md:items-center md:justify-between w-auto lg:w-[823px] my-6 px-2 py-3 mr-4 rounded-xl">
             <div className="flex gap-4">
                 <img className="w-40 md:max-w-45 h-[50%] aspect-video sm:h-auto object-cover object-bottom rounded" src={booking.show.movie.backdrop_path}  alt={booking.show.movie.title} />
                 <div className="flex flex-col justify-around">
