@@ -1,8 +1,19 @@
 import { Outlet } from "react-router-dom";
 import AdminNav from "../../components/admin/AdminNav";
 import SideBar from "../../components/admin/SideBar.";
+import { lookInSession } from "../../common/session";
+import axios from "axios";
 
 const Layout = () => {
+    const token = lookInSession('quick_token');
+    if (!token)
+    {
+      scrollTo(0, 0);
+      document.body.style.overflow = "hidden";
+      setShowAuthScreen(true);
+      return toast.error("Sorry, you need to be logged in first");
+    }
+    axios.post
     return (
         <>
             <AdminNav />

@@ -1,15 +1,17 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status, Form, File
 from fastapi.responses import JSONResponse
 from api.deps import SessionDep, get_current_user
-from model import Booking, ShowResponse, User, OccupiedSeat, Favourites
+from model import Booking, ShowResponse, User, OccupiedSeat, Favourites, EditUser
 from sqlmodel import select
 from core.config import settings
+from core.security import get_hashed_password
 
 from api.controllers.show_controllers import retrieve_single_show
-from api.lib.helpers import to_uuid4
+from api.lib.helpers import to_uuid4, upload_image_to_cloudinary
 from api.lib.payment_handlers import verify_payment
+from crud import authenticate
 
 from dotenv import load_dotenv
 
@@ -28,26 +30,6 @@ async def get_user_bookings(session: SessionDep, user: Annotated[User, Depends(g
     print(f'references: {trxref}, {reference}')
     if trxref and reference:
         payment_message = await verify_payment(session=session, trxref=trxref, reference=reference)
-        # frontend_url: str | None = os.getenv('FRONTEND_URL')
-        # backend_url: str | None = os.getenv('BACKEND_URL')
-        
-        # if not frontend_url or not backend_url:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        #         detail='incomplete development keys'
-        #     )
-        # verify_payment_url = backend_url + settings.API_V1_STR +  f'/auth/verify-show-payment?trxref={trxref}&reference={reference}'
-        # headers = {
-        #     'Authorization': f'Bearer {}'
-        # }
-        # try:
-        #     paystack_response = requests.get(verify_payment_url)
-        #     if paystack_response.status_code == 200:
-        #         payment_message = 'Your payment was successful.'
-        #     else:
-        #         payment_message = 'Your payment was not successful or is pending.'
-        # except:
-        #     payment_message = 'Sorry an error occured while processing your payment'
     
     response = []
     bookings = session.exec(select(Booking).where(Booking.user_id == user.id)).all()
@@ -109,3 +91,52 @@ async def add_favourite_show(session: SessionDep,show_id: str, user: Annotated[U
         content={'message': 'Show successfully added to favourites'},
         status_code=status.HTTP_200_OK,
     )
+
+
+@router.put('/edit-profile')
+async def edit_user_profile(
+    session: SessionDep, 
+    user: Annotated[User, Depends(get_current_user)], 
+    firstname: str = Form(...), 
+    lastname: str = Form(...), 
+    old_password: str | None = Form(None), 
+    new_password: str | None = Form(None),
+    profile_image: UploadFile | None = File(None)
+):
+    user_stored = session.exec(select(User).where(User.email == user.email)).one()
+
+    if new_password and old_password:
+
+        if not await authenticate(session=session, email=user.email,password=old_password):
+            
+            raise HTTPException(
+                detail='sorry your old password did not match',
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        
+        new_password_hashed = get_hashed_password(new_password)
+        user_stored.hashed_password = new_password_hashed
+
+    user_stored.firstname = firstname
+    user_stored.lastname = lastname
+    
+
+    if profile_image:
+        n_profile_image= await profile_image.read()
+        cloud_image_path = await upload_image_to_cloudinary(n_profile_image, user_stored.firstname, user_stored.lastname)
+        if not cloud_image_path:
+            raise HTTPException(
+                detail='Sorry an error occured when uploading your profile picture',
+                status_code=status.HTTP_408_REQUEST_TIMEOUT
+            )
+        
+        user_stored.image_path = cloud_image_path
+    
+    session.add(user_stored)
+    session.commit()
+
+    return JSONResponse({'message': 'successful'}, status_code=status.HTTP_200_OK)
+
+    
+
+

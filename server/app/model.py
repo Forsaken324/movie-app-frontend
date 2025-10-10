@@ -2,8 +2,9 @@ import uuid
 from typing import List
 
 from pydantic import BaseModel, EmailStr
-from datetime import date, datetime, time
-from sqlmodel import Field, Relationship, SQLModel
+from datetime import date, datetime
+from sqlmodel import Field, Relationship, SQLModel, BLOB
+
 
 class ShowCastLink(SQLModel, table=True):
     cast_id: uuid.UUID = Field(default_factory=uuid.uuid4, foreign_key="cast.id", primary_key=True)
@@ -147,6 +148,13 @@ class UserOut(BaseModel):
 
 class UserIn(UserOut):
     password: str = Field(regex=r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')
+
+class EditUser(SQLModel):
+    firstname: str
+    lastname: str
+    old_password: str | None = None
+    new_password: str | None = None
+    profile_image: bytes | None = None
 
 
 class Token(SQLModel):

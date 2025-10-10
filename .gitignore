@@ -190,3 +190,9 @@ Thumbs.db
 # Sensitive information (adjust as needed)
 # config.ini
 # settings_local.py
+
+# learning
+learn/
+learn
+test_sm/
+test_sm

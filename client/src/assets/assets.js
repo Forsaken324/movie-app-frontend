@@ -5,6 +5,7 @@ import appStore from './appStore.svg'
 import screenImage from './screenImage.svg'
 import profile from './profile.png'
 import googleSvg from './google.svg'
+import uploadArea from './uploadArea.svg'
 
 export const assets = {
     logo,
@@ -13,7 +14,8 @@ export const assets = {
     appStore,
     screenImage,
     profile,
-    googleSvg
+    googleSvg,
+    uploadArea
 }
 
 export const dummyTrailers = [

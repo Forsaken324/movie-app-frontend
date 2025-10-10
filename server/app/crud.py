@@ -3,7 +3,7 @@ from api.deps import SessionDep
 from model import User
 
 from api.deps import get_user
-from core.security import create_access_token, verify_password
+from core.security import verify_password
 from core.config import settings
 
 async def authenticate(session: SessionDep, email: str, password: str) -> User | None:
