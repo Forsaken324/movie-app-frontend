@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { lookInSession } from "../common/session";
-import toast from "react-hot-toast";
 import useApp from "../hooks/useApp";
 
 const Profile = () => {

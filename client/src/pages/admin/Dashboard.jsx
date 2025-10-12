@@ -6,6 +6,9 @@ import Title from "../../components/admin/Title";
 import BlurCircle from "../../components/BlurCircle";
 import DashboardCard from "../../components/admin/DashboardCard";
 import AdminMovieCard from "./AdminMovieCard";
+import axios from "axios";
+import { lookInSession } from "../../common/session";
+import { Navigate } from "react-router-dom";
 
 const DashBoard = () => {
     const currency = import.meta.env.VITE_CURRENCY;
@@ -27,8 +30,32 @@ const DashBoard = () => {
     ]
 
     const fetchDashboardData = async () => {
-        setDashboardData(dummyDashboardData);
-        setLoading(false);
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+        const token = lookInSession('quick_token');
+        if(!token)
+        {
+            scrollTo(0, 0);
+            document.body.style.overflow = "hidden";
+            setShowAuthScreen(true);
+            return toast.error("Sorry, you need to be logged in first");
+        }
+        axios.get(BACKEND_URL + '/admin/dashboard', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            console.log(response.status)
+            console.log(response.data);
+            setDashboardData(response.data);
+            setLoading(false);
+        })
+        .catch(error => {
+            if(response.status === 403 || 401)
+            {
+                return <Navigate to={'/unauthorized'} />
+            }
+        });
     }
 
     useEffect(() => {

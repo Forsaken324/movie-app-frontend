@@ -145,6 +145,7 @@ class UserOut(BaseModel):
     username: str
     email: EmailStr
     image_path: str | None 
+    is_admin: bool
 
 class UserIn(UserOut):
     password: str = Field(regex=r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')

@@ -300,7 +300,6 @@ async def list_bookings(session: SessionDep):
     return response
 
         
-        
 
 
 

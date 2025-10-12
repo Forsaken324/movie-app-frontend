@@ -139,6 +139,7 @@ const EditProfile = () => {
         <input
           type="file"
           id="profile-image"
+          accept="image/*"
           className="hidden"
           onChange={(e) => setUpdatedProfilePicture(e.target.files[0])}
         />

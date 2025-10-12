@@ -22,6 +22,9 @@ import { useAuth } from './hooks/useAuth'
 import LoginXSignup from './components/LoginXAuth'
 import useApp from './hooks/useApp'
 import ProfileModal from './components/modals/ProfileModal'
+import { AdminRoute } from "./components/routes/AdminRoute"
+
+import { Unauthorized } from "./pages/fallbacks/Unauthorized"
 
 const App = () => {
 
@@ -52,7 +55,12 @@ const App = () => {
         <Route path='/movies/:id/:date' element={<SeatLayout />} />
         <Route path='/my-bookings' element={<MyBookings />} />
         <Route path='/favourite' element={<Favourite />} />
-        <Route path='/admin/*' element={<Layout />}>
+        <Route path='/unauthorized' element={<Unauthorized />} />
+        <Route path='/admin/*' element={
+          <AdminRoute>
+            <Layout />
+          </AdminRoute>
+        }>
           <Route index element={<DashBoard />} />
           <Route path='add-shows' element={<AddShows />} />
           <Route path='list-shows' element={<ListShows />} />

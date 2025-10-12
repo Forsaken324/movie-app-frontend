@@ -16,7 +16,7 @@ const LoginXSignup = () => {
     const [username, setUsername] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const { setShowAuthScreen, setAuthenticatedUsername, setIsLoggedIn } = useAuth();
+    const { setShowAuthScreen, setAuthenticatedUsername, setIsLoggedIn, setUser } = useAuth();
 
     const [loginMode, setLoginMode] = useState(true)
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -49,11 +49,17 @@ const LoginXSignup = () => {
                     if(response.status == 200)
                     {
                         setAuthenticatedUsername(response.data.username);
+                        
+                        // console.log(response.data);
                     }else {
                         setAuthenticatedUsername(formData.email);
                     }
                 })
                 .catch(error => {
+                    if (error.status == 400)
+                    {
+                        
+                    }
                     console.log('Error: ', error);
                 });
                 
@@ -70,7 +76,8 @@ const LoginXSignup = () => {
             }
         })
         .catch(error => {
-            console.log('Error: ', error)
+            console.log('Error: ', error);
+            toast.error("Invalid login credentials")
             setIsLoading(false);
             return
         })

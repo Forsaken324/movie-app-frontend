@@ -1,14 +1,14 @@
 import { removeFromSession } from "../../common/session";
 import useApp from "../../hooks/useApp";
 import { Link } from "react-router-dom";
-import { ClipboardList, LogOut, UserRoundPen } from 'lucide-react';
+import { ClipboardList, LogOut, UserRoundPen, Wrench } from 'lucide-react';
 import { useState } from "react";
 import EditProfile from "../slides/EditProfile";
 import {motion} from 'motion/react'
 
 
 const ProfileModal = () => {
-  const { user, showProfileScreen, setShowProfileScreen } = useApp();
+  const { user, setShowProfileScreen } = useApp();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const handleLogUserOut = () => {
     removeFromSession("quick_token");
@@ -48,6 +48,14 @@ const ProfileModal = () => {
             <ClipboardList /><Link to={'/my-bookings'} onClick={() => setShowProfileScreen(false)}>my bookings</Link>
         </div>
         <hr className="text-gray-400" />
+        {user.is_admin && (
+          <>
+            <div className="py-5 px-3 flex gap-2">
+              <Wrench /><Link to={'/admin'} onClick={() => setShowProfileScreen(false)}>admin</Link>
+            </div>
+            <hr className="text-gray-400" />
+          </>
+        )}
         <div className="py-5 px-3">
           <button className={`flex gap-2 ${showEditProfile ? 'pb-2' : ''}`} onClick={() => setShowEditProfile(!showEditProfile)}><UserRoundPen /> edit profile</button>
           {showEditProfile && <EditProfile />}
