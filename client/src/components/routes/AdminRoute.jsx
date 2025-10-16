@@ -31,7 +31,7 @@ export const AdminRoute = ({ children }) => {
         })
         .then(response => {
             setUser(response.data);
-            console.log(user)
+            
         })
         .catch(error => {
             toast.error('Sorry an error occured, try again later');

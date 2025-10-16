@@ -4,11 +4,44 @@ import { useEffect, useState } from "react";
 import LoadingAnimation from "../../components/animations/LoadingAnimation";
 import isoTimeFormat from "../../lib/isoTimeFormat";
 import { dashedDate } from "../../lib/dashedDate";
+import { lookInSession } from "../../common/session";
+import { useAuth } from "../../hooks/useAuth";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const ListShows = () => {
     const [shows, setShows] = useState(null);
+    const {setShowAuthScreen} = useAuth();
+
     const getShows = async () => {
-        setShows(dummyListShowsData);
+        const token = lookInSession('quick_token');
+        if(!token)
+        {
+            scrollTo(0, 0);
+            document.body.style.overflow = "hidden";
+            setShowAuthScreen(true);
+            return toast.error("Sorry, you need to be logged in first");
+        }
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+        axios.get(BACKEND_URL + '/admin/list-shows', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if(response.status === 200)
+            {
+                setShows(response.data);
+                return;
+            }
+            else{
+                toast.error('sorry an error occured');
+            }
+        })
+        .catch(error => {
+            const message = error.response.data;
+            toast.error(`sorry an error occured ${message}`);
+        })
     };
     const currency = import.meta.env.VITE_CURRENCY;
     // const dataXTime = (datetimeString) => {
@@ -35,9 +68,9 @@ const ListShows = () => {
                     <tbody>
                         {shows.map((show, index) => (
                             <tr key={index} className="bg-primary/10">
-                                <td className="pl-5 h-[60px] border border-x-0 border-primary/40">{show.movie.title}</td>
-                                <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40" >{dashedDate(show.showTime)} {isoTimeFormat(show.showTime)}</td>
-                                <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40">{show.totalBookings}</td>
+                                <td className="pl-5 h-[60px] border border-x-0 border-primary/40">{show.show_title}</td>
+                                <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40" >{dashedDate(show.show_time.show_time)} {isoTimeFormat(show.show_time.show_time)}</td>
+                                <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40">{show.total_bookings}</td>
                                 <td className="h-[60px] text-gray-300 border border-x-0 border-primary/40">{currency}{show.earnings}</td>
                             </tr>
                         ))}

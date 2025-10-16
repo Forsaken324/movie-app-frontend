@@ -1,22 +1,29 @@
 import { StarIcon } from 'lucide-react';
+import useApp from '../../hooks/useApp';
 
 const AdminMovieCard = ({ show }) => {
   const currency = import.meta.env.VITE_CURRENCY;
+  const { setShowEditShow, setShowToEdit } = useApp();
+
+  const handleEditShow = () => {
+    setShowToEdit(show);
+    setShowEditShow(true);
+  }
 
   return (
-    <div className="h-[267px] w-[268px] rounded-xl bg-primary/10 border border-primary/20 border-t-0 text-white overflow-hidden shadow-md">
+    <div className="h-[267px] w-[268px] rounded-xl bg-primary/10 border border-primary/20 border-t-0 text-white overflow-hidden shadow-md" onClick={handleEditShow}>
       <img
-        src={show.movie.backdrop_path}
-        alt={show.movie.title}
+        src={show.backdrop_path}
+        alt={show.title}
         className="h-[178px] w-full object-cover rounded-t-xl"
       />
       <div className="px-3 py-2">
-        <p className="text-sm font-semibold truncate">{show.movie.title}</p>
+        <p className="text-sm font-semibold truncate">{show.title}</p>
         <div className="flex justify-between items-center mt-2">
-          <p className="font-bold text-xl">{currency}{show.showPrice}</p>
+          <p className="font-bold text-xl">{currency} {show.price}</p>
           <div className="flex items-center gap-1 text-sm">
             <StarIcon className="fill-primary text-primary w-4 h-4" />
-            <p className='text-gray-400'>{show.movie.vote_average.toFixed(1)}</p>
+            <p className='text-gray-400'>{show.vote_average.toFixed(1)}</p>
           </div>
         </div>
       </div>

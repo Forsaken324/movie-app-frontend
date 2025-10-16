@@ -281,8 +281,8 @@ async def list_bookings(session: SessionDep):
                 detail='The user that booked a show was not found',
                 status_code=status.HTTP_409_CONFLICT
             )
-        show = await retrieve_single_show(session=session, show_id=str(Booking.show_id))
-        booked_seats = session.exec(select(OccupiedSeat).where(OccupiedSeat.booking_id == Booking.id)).all()
+        show = await retrieve_single_show(session=session, show_id=str(booking.show_id))
+        booked_seats = session.exec(select(OccupiedSeat.seat).where(OccupiedSeat.booking_id == booking.id)).all()
 
         payload['user'] = {'name': user.firstname}
         payload['show'] = {
