@@ -266,3 +266,5 @@ A webhook is an automated, event driven message sent from one application to ano
 This allows for realtime communication between systems, enabling immediate updates and the triggering of automated workflows without constant polling for new data.
 
 A webhook url is a post endpoint that a resource server sends updates to.
+
+The and operator might not work well in sqlmodel, instead you can chain multiple where methods to help you perform an and operation. or pass the same expressions into the same where call seperated by a comma.

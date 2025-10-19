@@ -2,7 +2,7 @@ import os
 
 from typing import List, Annotated
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -32,7 +32,7 @@ CALLBACK_URL = os.getenv('FRONTEND_URL')
 
 @router.get('/', response_model=List[ShowResponse])
 async def get_shows(session: SessionDep):
-    shows = await retrieve_shows(session=session)
+    shows = session.exec(select(Show).where(Show.is_active == True)).all()
     return shows
         # look for a way to serialize the show data.
 
@@ -46,7 +46,11 @@ async def get_show(session: SessionDep, show_id: str):
 
 @router.get('/{show_id}/time')
 async def get_show_time(session: SessionDep, show_id: str):
-    schedules = session.exec(select(ShowTime).where(ShowTime.show_id == to_uuid4(show_id))).all()
+    today = datetime.now(timezone.utc)
+    
+    schedules = session.exec(select(ShowTime).where(ShowTime.show_id == to_uuid4(show_id), ShowTime.show_time > today)).all()
+    
+    schedules = sorted(list(schedules), key=lambda x : x.show_time)
 
     grouped = defaultdict(list)
 

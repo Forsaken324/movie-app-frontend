@@ -1,7 +1,7 @@
 from typing import Annotated, Dict
 from datetime import datetime
 
-from ..controllers.show_controllers import retrieve_single_show
+from ..controllers.show_controllers import retrieve_single_show, retrieve_shows
 from ..lib.helpers import to_uuid4
 from model import AddCast, AddGenre, Booking, Cast, CastPayload, Genre, OccupiedSeat, ShowIn, ShowTime, ShowTimeIn, User, Show
 
@@ -21,6 +21,11 @@ success_message: Dict[str, str] = {
         "message": "Successful",
     }
 
+
+@router.get('/shows', dependencies=[Depends(get_admin_user)])
+async def get_shows(session:SessionDep):
+    shows = await retrieve_shows(session=session)
+    return shows    
 
 @router.post('/create-show', dependencies=[Depends(get_admin_user)])
 async def create_show(session: SessionDep, show: ShowIn):
@@ -124,6 +129,7 @@ async def delete_show(session: SessionDep, show_id: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The show you want to delete was not found"
         )
+    
     session.delete(unwanted_show)
     session.commit()
 
@@ -136,7 +142,7 @@ async def set_show_active(session: SessionDep, show_id: str):
     session.add(show)
     session.commit()
 
-    return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
+    return JSONResponse(success_message, status_code=status.HTTP_200_OK)
     
 @router.post('/show/set-inactive/{show_id}', dependencies=[Depends(get_admin_user)])
 async def set_show_inactive(session: SessionDep, show_id: str):
@@ -154,6 +160,8 @@ async def set_show_inactive(session: SessionDep, show_id: str):
     show.is_active = False
     session.add(show)
     session.commit()
+
+    return JSONResponse(success_message, status_code=status.HTTP_200_OK)
 
 @router.get('/show/list-time', dependencies=[Depends(get_admin_user)])
 async def list_show_time(session: SessionDep):
@@ -179,7 +187,7 @@ async def set_show_time(session: SessionDep, payload: ShowTimeIn):
     session.add(time)
     session.commit()
 
-    return JSONResponse(success_message, status_code=status.HTTP_204_NO_CONTENT)
+    return JSONResponse(success_message, status_code=status.HTTP_201_CREATED)
 
 @router.delete('/show/delete-time/{time_id}', dependencies=[Depends(get_admin_user)])
 async def delete_show_time(session: SessionDep, time_id: str):

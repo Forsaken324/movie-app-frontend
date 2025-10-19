@@ -5,16 +5,7 @@ import { timeFormat } from "../lib/timeFormat";
 
 const MovieCard = ({movie}) => {
     const navigate = useNavigate();
-    
-    // const imageContainer = useRef();
-    
-    // useEffect(() => {
-    //     if(imageContainer.current)
-    //     {
-    //         imageContainer.current.style.backgroundImage = `url(${imgUrl})`;
-    //         imageContainer.current.style.backgroundSize = 'cover';
-    //     }
-    // }, []);
+
   return (
     <div className="flex flex-col justify-evenly p-3 bg-gray-800 rounded-2xl hover:-translate-y-1 transition duration-300 w-66">
         {/* <div className="p-10 h-[170px] w-[270px] rounded flex items-center justify-center" ref={imageContainer}>
